@@ -17,14 +17,14 @@ class Sonata_TemplateView
    *
    * @var string
    */
-  protected $__template;
+  protected $template;
   
   /**
    * Array with vars to be used in the template
    *
    * @var array
    */
-  protected $__templateVars = array();
+  protected $templateVars = array();
   
   /**
    * Constructor
@@ -33,7 +33,7 @@ class Sonata_TemplateView
    */
   public function __construct($template)
   {
-    $this->__template = $template;
+    $this->template = $template;
   }
   
   /**
@@ -44,7 +44,7 @@ class Sonata_TemplateView
    */
   public function assign($name, $value)
   {
-    $this->__templateVars[$name] = $value;
+    $this->templateVars[$name] = $value;
   }
   
   /**
@@ -54,7 +54,7 @@ class Sonata_TemplateView
    */
   public function getTemplateVars()
   {
-    return $this->__templateVars;
+    return $this->templateVars;
   }
   
   /**
@@ -66,9 +66,9 @@ class Sonata_TemplateView
    */
   public function __get($property)
   {
-    if (isset($this->__templateVars[$property]))
+    if (isset($this->templateVars[$property]))
     {
-      return $this->__templateVars[$property];
+      return $this->templateVars[$property];
     }
     
     return null;
@@ -96,7 +96,7 @@ class Sonata_TemplateView
       throw new Sonata_Exception_ConfigNotFound('Could not determine the path for the templates directory');
     }
     
-    $filename = $paths['templates'].'/'.$this->__template.'Success.'.$response->getFormat().'.php';
+    $filename = $paths['templates'].'/'.$this->template.'Success.'.$response->getFormat().'.php';
     if (!is_readable($filename))
     {
       throw new Sonata_Exception_TemplateNotFound(sprintf("The template '%s' does not exist or is not readable.", $filename));
