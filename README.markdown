@@ -46,7 +46,7 @@ Doing it the Sonata way is as easy as ...
 
 and 3.
 
-    <!-- ShowArticlesSuccess.xml.php -->
+    <!-- ShowArticleSuccess.xml.php -->
     
     <?php echo '<?' ?>xml version="1.0" encoding="utf-8" ?>
     <rsp stat="ok">
