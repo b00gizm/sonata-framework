@@ -41,6 +41,9 @@ $t->is($tv->getTemplateVars(), array('foo' => 42, 'bar' => 4711), 'The template 
 
 // @Test: ->__get()
 
+$tv = new Sonata_TemplateView('Bar');
+$tv->assign('foo', 42);
+$tv->assign('bar', 4711);
 $t->is($tv->foo, 42, 'Assigned template vars are retrieved correctly via __get');
 $t->is($tv->baz, null, 'Non-existing template vars are NULL per default');
 
