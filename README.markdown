@@ -31,7 +31,7 @@ Doing it the Sonata way is as easy as ...
 
 2, ...
 
-    class ShowArticlesCommand extends Sonata_Command
+    class ShowArticleCommand extends Sonata_Command
     {
       protected function doExecute(Sonata_Request $request Sonata_Response $response)
       {
