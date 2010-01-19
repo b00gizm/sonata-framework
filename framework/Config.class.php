@@ -61,7 +61,7 @@ class Sonata_Config
    * @param boolean $clear Clear old data first? 
    * @throws RuntimeException
    */
-  public static function load($filename, Sonata_Parser_Config $configParser, $clear = true)
+  public static function load($filename, Sonata_Parser_Config $configParser, $clear = false)
   {
     try 
     {

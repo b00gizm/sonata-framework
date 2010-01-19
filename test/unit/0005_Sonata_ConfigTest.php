@@ -41,7 +41,7 @@ Sonata_Config::load('some_random_config_file.yml', $parserStub);
 $t->is((Sonata_Config::get('foo') == 42 && Sonata_Config::get('bar') == 4711), true, 'Parsed valus were saved correctly');
 
 Sonata_Config::load('some_other_random_config_file.yml', $parserStub);
-$t->is((Sonata_Config::get('rex') == 'fido' && Sonata_Config::get('foo') == null), true, 'Old values are cleared at every parse if not set otherwise');
+$t->is((Sonata_Config::get('rex') == 'fido' && Sonata_Config::get('foo') == 42), true, 'Newly parsed values are merged into the old ones if not set otherwise');
 
-Sonata_Config::load('some_random_config_file.yml', $parserStub, false);
-$t->is((Sonata_Config::get('rex') == 'fido' && Sonata_Config::get('foo') == 42), true, 'If set, the new values are being merged into the old ones');
+Sonata_Config::load('some_other_random_config_file.yml', $parserStub, true);
+$t->is((Sonata_Config::get('rex') == 'fido' && Sonata_Config::get('foo') == null), true, 'If the clear flag is set to TRUE, the old values are cleared first');
