@@ -14,7 +14,7 @@ Wouldn't it be great to have a stripped-down mini framework for building RESTful
 
 ## Introducing Sonata.
 
-Sonata is a lightweight framework for building RESTful webservices in PHP > 5.2.4. Sonata was mainly inspired by the concepts of the [Symfony Project](http://www.symfony-project.org) and [Ruby On Rails](http://rubyonrails.org). It also uses Symfony components like the [sfYaml library](http://components.symfony-project.org/yaml/) by [Fabien Potentcier](http://github.com/fabpot) and the [Lime2 testing framework](http://trac.symfony-project.org/browser/tools/lime) by [Bernhard Schussek](http://github.com/bschussek).
+Sonata is a lightweight framework for building RESTful webservices in PHP >= 5.2.4. Sonata was mainly inspired by the concepts of the [Symfony Project](http://www.symfony-project.org) and [Ruby On Rails](http://rubyonrails.org). It also uses Symfony components like the [sfYaml library](http://components.symfony-project.org/yaml/) by [Fabien Potentcier](http://github.com/fabpot) and the [Lime2 testing framework](http://trac.symfony-project.org/browser/tools/lime) by [Bernhard Schussek](http://github.com/bschussek).
 
 ## Sonata at a glance.
 
