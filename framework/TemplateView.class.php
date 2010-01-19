@@ -37,14 +37,32 @@ class Sonata_TemplateView
   }
   
   /**
-   * Assigns a key/value pair to be used as variable in the template
+   * Assigns a key/value pair or an array with key/value pairs to be used as variable in the template
    *
-   * @param string $name The name
+   * @param array $arg An array with key/value pairs
+   * @param string $arg The key
    * @param string $value The value
    */
-  public function assign($name, $value)
+  public function assign($arg)
   {
-    $this->templateVars[$name] = $value;
+    $numArgs = func_num_args();    
+    $firstArg = func_get_arg(0);
+    if ($numArgs == 1)
+    {
+      if (!is_array($firstArg))
+      {
+        return;
+      }
+      
+      $this->templateVars = array_merge($this->templateVars, $firstArg);
+    }
+    else
+    {
+      $secArg = func_get_arg(1);
+      $this->templateVars[$firstArg] = $secArg;
+    }
+    
+    return;
   }
   
   /**

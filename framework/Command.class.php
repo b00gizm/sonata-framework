@@ -144,22 +144,8 @@ abstract class Sonata_Command
     }
     
     $templateView = new Sonata_TemplateView($templateViewName);
-    $this->assignTemplateVars($templateView);
+    $templateView->assign($this->getVarHolder()->getAll());
     $templateView->render($request, $response);
-  }
-  
-  /**
-   * Takes all set variables from the var holder and assigns them
-   * to the template view
-   *
-   * @param Sonata_TemplateView $templateView 
-   */
-  protected function assignTemplateVars(Sonata_TemplateView $templateView)
-  {
-    foreach($this->getVarHolder()->getAll() as $name => $value)
-    {
-      $templateView->assign($name, $value);
-    }
   }
   
   /**

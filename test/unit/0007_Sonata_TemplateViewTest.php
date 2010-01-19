@@ -39,6 +39,9 @@ $tv->assign('foo', 42);
 $tv->assign('bar', 4711);
 $t->is($tv->getTemplateVars(), array('foo' => 42, 'bar' => 4711), 'The template vars were assigned correctly');
 
+$tv->assign(array('baz' => 123, 'quux' => 456));
+$t->is($tv->getTemplateVars(), array('foo' => 42, 'bar' => 4711, 'baz' => 123, 'quux' => 456), 'You can even assign a whole array with key/value pairs');
+
 // @Test: ->__get()
 
 $tv = new Sonata_TemplateView('Bar');
