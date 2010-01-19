@@ -120,7 +120,7 @@ class Sonata_FrontController
   protected function redirectError($code, $message = null)
   {
     $this->response->setStatusCode($code);
-    $templateView = new PSTemplateView('Error');
+    $templateView = new Sonata_TemplateView('Error');
     $templateView->assign('code', $this->response->getStatusCode());
     $message = is_null($message) ? $this->response->getStatusText() : $message;
     $templateView->assign('message', $message);
