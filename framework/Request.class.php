@@ -92,4 +92,19 @@ class Sonata_Request
   {
     return $_SERVER['REQUEST_METHOD'];
   }
+  
+  /**
+   * Returns the raw post data for a POST or PUT request
+   *
+   * @return string The raw post data
+   */
+  public function getRawPostData()
+  {
+    if ($this->isMethod('POST') || $this->isMethod('PUT'))
+    {
+      return trim(file_get_contents('php://input'));
+    }
+    
+    return null;
+  }
 }
