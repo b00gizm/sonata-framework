@@ -76,6 +76,6 @@ class Sonata_Route
       return null;
     }
     
-    return ucfirst($this->action).ucfirst($this->resource);
+    return (Sonata_Utils::camelize($this->action).Sonata_Utils::camelize($this->resource));
   }
 }
