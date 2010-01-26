@@ -41,6 +41,20 @@ class Sonata_FrontController
   protected $response = null;
   
   /**
+   * Filter chain with filters to be executes before the controller handles the actual request
+   *
+   * @var array
+   */
+  protected $preFilters = null;
+  
+  /**
+   * Filter chain with filters to be executes after the controller handles the actual request
+   *
+   * @var array
+   */
+  protected $postFilters = null;
+  
+  /**
    * The constructor
    *
    * @param Sonata_Command_Resolver $resolver A command resolver opject
@@ -50,6 +64,9 @@ class Sonata_FrontController
   {
     $this->resolver = $resolver;
     $this->map = $map;
+    
+    $this->preFilters = new Sonata_FilterChain();
+    $this->postFilters = new Sonats_FilterChain();
   } 
   
   /**
@@ -107,14 +124,46 @@ class Sonata_FrontController
     
     try
     {
+      // Process all pre filters
+      $this->preFilters->processFilters($request, $response);
+      
       // Execute the command
       $command->execute($this->request, $this->response);
-      $this->response->flush();
+      
+      // Process all post filters
+      $this->preFilters->processFilters($request, $response);
     }
-    catch(Sonata_Exception_TemplateNotFound $ex)
+    catch(Sonata_Exception $ex)
     {
       $this->redirectErrorUnless($command, 500);
     }
+    
+    // Flush the response
+    $this->response->flush();
+  }
+  
+  /**
+   * Adds a filter to the filter chain that contains pre filters
+   * by delegating the it to Sonata_Filter::addFilter()
+   *
+   * @param Sonata_Filter $filter 
+   * @see Sonata_Filter::addFilter()
+   */
+  public function addPreFilter(Sonata_Filter $filter)
+  {
+    $this->preFilters->addFilter($filter);
+  }
+  
+  /**
+   * Adds a filter to the filter chain that contains post filters
+   * by delegating the it to Sonata_Filter::addFilter()
+   *
+   * @param Sonata_Filter $filter 
+   * @see Sonata_Filter::addFilter()
+   */
+  public function addPostFilter(Sonata_Filter $filter)
+  {
+    $this->postFilters->addFilter($filter);
   }
   
   protected function redirectError($code, $message = null)
