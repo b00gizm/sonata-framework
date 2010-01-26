@@ -131,7 +131,7 @@ class Sonata_FrontController
       $command->execute($this->request, $this->response);
       
       // Process all post filters
-      $this->preFilters->processFilters($request, $response);
+      $this->postFilters->processFilters($request, $response);
     }
     catch(Sonata_Exception $ex)
     {
