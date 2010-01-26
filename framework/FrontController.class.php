@@ -135,7 +135,7 @@ class Sonata_FrontController
     }
     catch(Sonata_Exception $ex)
     {
-      $this->redirectErrorUnless($command, 500);
+      $this->redirectErrorUnless($command, $ex->getCode());
     }
     
     // Flush the response
