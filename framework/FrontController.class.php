@@ -66,7 +66,7 @@ class Sonata_FrontController
     $this->map = $map;
     
     $this->preFilters = new Sonata_FilterChain();
-    $this->postFilters = new Sonats_FilterChain();
+    $this->postFilters = new Sonata_FilterChain();
   } 
   
   /**
