@@ -20,6 +20,13 @@ class Sonata_TemplateView
   protected $template;
   
   /**
+   * Name of the resource the template belongs to
+   *
+   * @var string
+   */
+  protected $resource;
+  
+  /**
    * Array with vars to be used in the template
    *
    * @var array
@@ -30,10 +37,12 @@ class Sonata_TemplateView
    * Constructor
    *
    * @param string $template Name of the template to be rendered
+   * @param string $resource Name of the resource the template belongs to
    */
-  public function __construct($template)
+  public function __construct($template, $resource = null)
   {
     $this->template = $template;
+    $this->resource = $resource;
   }
   
   /**
@@ -98,7 +107,7 @@ class Sonata_TemplateView
    * @param Sonata_Request $request The HTTP request object
    * @param Sonata_Response $response The HTTP response object
    * @throws Sonata_Exception_Config
-   * @throws Sonata_Exception_TemplateNotFound
+   * @throws Sonata_Exception_Template
    */
   public function render(Sonata_Request $request, Sonata_Response $response)
   {
@@ -108,16 +117,23 @@ class Sonata_TemplateView
       $response->setFormat($format);
     }
     
-    $paths = Sonata_Config::get('paths');
-    if (empty($paths) || !isset($paths['templates']))
+    if ($this->resource)
     {
-      throw new Sonata_Exception_ConfigNotFound('Could not determine the path for the templates directory');
+      $paths = Sonata_Config::get('paths');
+      if (empty($paths) || !isset($paths['templates']))
+      {
+        throw new Sonata_Exception_Config('Could not determine the path for the templates directory');
+      }
+      $filename = $paths['templates'].DIRECTORY_SEPARATOR.$this->resource.DIRECTORY_SEPARATOR.$this->template.'Success.'.$response->getFormat().'.php';
+    }
+    else
+    {
+      $filename = dirname(__FILE__).'/../data/templates/'.$this->template.'Success.'.$response->getFormat().'.php';
     }
     
-    $filename = $paths['templates'].'/'.$this->template.'Success.'.$response->getFormat().'.php';
     if (!is_readable($filename))
     {
-      throw new Sonata_Exception_TemplateNotFound(sprintf("The template '%s' does not exist or is not readable.", $filename));
+      throw new Sonata_Exception_Template(sprintf("The template '%s' does not exist or is not readable.", $filename));
     }
     
     ob_start();

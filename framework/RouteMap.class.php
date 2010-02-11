@@ -57,7 +57,7 @@ class Sonata_RouteMap
     $paths = Sonata_Config::get('paths');
     if (empty($paths) || !isset($paths['routes']))
     {
-      throw new Sonata_Exception_ConfigNotFound('Could not determine the path routes config file');
+      throw new Sonata_Exception_Config('Could not determine the path routes config file');
     }
     
     $defaultOptions = array(
