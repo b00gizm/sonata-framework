@@ -59,7 +59,7 @@ try
   $tv->render($request, $response);
   $t->fail();
 }
-catch (Sonata_Exception_ConfigNotFound $ex)
+catch (Sonata_Exception_Config $ex)
 {
   $t->pass('An exception is thrown Sonata_Template_View could not determine the path for the templates directory');
 }
@@ -72,7 +72,7 @@ try
   $tv->render($request, $response);
   $t->fail();
 }
-catch (Sonata_Exception_TemplateNotFound $ex)
+catch (Sonata_Exception_Template $ex)
 {
   $t->pass('An exception is thrown if you try to access a non-existing template');
 }
@@ -83,7 +83,7 @@ try
   $tv->render($request, $response);
   $t->pass('No exception will be thrown for existing template files');
 }
-catch (Sonata_Exception_TemplateNotFound $ex)
+catch (Sonata_Exception_Template $ex)
 {
   $t->fail();
 }

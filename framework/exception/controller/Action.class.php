@@ -6,11 +6,12 @@
  *
  * @author Pascal Cremer <b00giZm@gmail.com>
  *
- * Sonata_Exception_ConfigNotFound
+ * Sonata_Exception_Controller_Action
+ * 
  *
- * @package framework.exception
+ * @package framework.exception.controller
  **/
-class Sonata_Exception_ConfigNotFound extends Sonata_Exception
+class Sonata_Exception_Controller_Action extends Sonata_Exception
 {
 
 }

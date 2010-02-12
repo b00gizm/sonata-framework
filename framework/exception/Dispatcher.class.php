@@ -6,11 +6,11 @@
  *
  * @author Pascal Cremer <b00giZm@gmail.com>
  *
- * Sonata_Exception_TemplateNotFound
+ * Sonata_Exception_Dipatcher
  *
  * @package framework.exception
  **/
-class Sonata_Exception_TemplateNotFound extends Sonata_Exception
+class Sonata_Exception_Dispatcher extends Sonata_Exception
 {
 
 }
