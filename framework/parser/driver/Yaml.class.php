@@ -10,12 +10,14 @@
  *
  * @package framework.parser.driver
  **/
+
+// Load the sfYaml library
+require_once dirname(__FILE__).'/../../../lib/sf_yaml/lib/sfYaml.php';
+ 
 class Sonata_Parser_Driver_Yaml extends Sonata_Parser_Driver
 {
   public function doParse($filename)
   {
-    include_once dirname(__FILE__).'/../../../lib/sf_yaml/sfYaml.php';
-    
     return sfYaml::load($filename);
   }
 }
