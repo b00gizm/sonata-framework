@@ -1,0 +1,18 @@
+Options +FollowSymLinks +ExecCGI
+
+<Limit GET POST PUT DELETE>
+
+Allow from all
+
+</Limit>
+
+<IfModule mod_rewrite.c>
+
+  RewriteEngine On
+  RewriteBase /
+
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^(.*)$ index.php?route=$1&%{QUERY_STRING} 
+  
+</IfModule>
