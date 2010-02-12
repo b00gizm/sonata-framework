@@ -1,0 +1,7 @@
+filters:
+  
+  # Add filters to be executed BEFORE an action
+  pre: ~
+  
+  # Add filters to be executed AFTER an action
+  post: ~

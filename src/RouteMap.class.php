@@ -53,16 +53,9 @@ class Sonata_RouteMap
    * Initializes the route map object
    */
   protected function init()
-  {
-    $paths = Sonata_Config::get('paths');
-    if (empty($paths) || !isset($paths['routes']))
-    {
-      throw new Sonata_Exception_Config('Could not determine the path routes config file');
-    }
-    
+  {    
     $defaultOptions = array(
       'use_config'  => false,
-      'config_file' => $paths['routes'],
     );
     
     // Merge options with default options

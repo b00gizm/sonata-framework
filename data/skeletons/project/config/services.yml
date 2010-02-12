@@ -1,0 +1,20 @@
+services:
+  
+  request:
+    class: Sonata_Request
+    
+  response:
+    class: Sonata_Response
+
+  dispatcher:
+    class: Sonata_Dispatcher
+
+  route_map:
+    class: Sonata_RouteMap
+    arguments: [@request, [true, "./routing.yml"]]
+    
+  # This is the default parser driver that will be used to parse config
+  # files. If you want to use your own, make sure it inherits from
+  # Sonata_Parser_Driver
+  parser_driver:
+    class: Sonata_Parser_Driver_Yaml
