@@ -1,3 +1,6 @@
 [submodule "lib/sf_yaml"]
 	path = lib/sf_yaml
 	url = git://github.com/fabpot/yaml.git
+[submodule "lib/sf_container"]
+	path = lib/sf_container
+	url = git://github.com/fabpot/dependency-injection.git
