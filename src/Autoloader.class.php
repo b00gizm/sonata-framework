@@ -29,8 +29,8 @@ class Sonata_Autoloader
    * Due to non-existing namespaces in PHP < 5.3 class names are mapped to
    * class files as following:
    *
-   * Sonata_Foo     => /path/to/sonata/framework/Foo.class.php
-   * Sonata_Foo_Bar => /path/to/sonata/framework/foo/Bar.class.php
+   * Sonata_Foo     => /path/to/sonata/src/Foo.class.php
+   * Sonata_Foo_Bar => /path/to/sonata/src/foo/Bar.class.php
    *
    * @param string $class The class name
    * @return boolean Returns true if the class could be loaded, FALSE otherwise

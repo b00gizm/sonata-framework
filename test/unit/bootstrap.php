@@ -11,7 +11,7 @@
 require_once dirname(__FILE__).'/../lib/lime2/lib/LimeAutoloader.php';
 LimeAutoloader::register();
 
-require_once dirname(__FILE__).'/../../framework/Autoloader.class.php';
+require_once dirname(__FILE__).'/../../src/Autoloader.class.php';
 Sonata_Autoloader::register();
 
 // Enable annotation support for Lime2
