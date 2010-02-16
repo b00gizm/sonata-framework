@@ -1,6 +1,6 @@
 <?php
 
-require_once dirname(__FILE__).'/../config/bootstrap.php';
+require_once "@project_root@/@config_dir@/bootstrap.php";
 
 // Let it roll!
 Sonata_App::run();

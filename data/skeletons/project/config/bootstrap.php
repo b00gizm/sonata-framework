@@ -1,7 +1,7 @@
 <?php
 
 // Register the Sonata autoloader
-require_once "@project_root@/lib/sonata/Autoloader.class.php";
+require_once "@project_root@/lib/vendor/sonata/src/Autoloader.class.php";
 Sonata_Autoloader::register();
 
 // Bootstap all vendor libraries
