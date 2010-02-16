@@ -26,14 +26,19 @@ Doing it the Sonata way is as easy as ...
 
 1, ...
 
-    $map->resources('articles');
+    # in config/routing.yml
+    
+    route_map:
+      resources: articles
     
 
 2, ...
 
-    class ShowArticleCommand extends Sonata_Command
+    // in controllers/ArticleController.class.php
+    
+    class ArticleController extends Sonata_Controller_Action
     {
-      protected function doExecute(Sonata_Request $request Sonata_Response $response)
+      protected function showAction(Sonata_Request $request Sonata_Response $response)
       {
         // Fetch the article data from a DB, 
         // e.g. by using the Doctrine ORM (http://www.doctrine-project.org)
@@ -46,7 +51,7 @@ Doing it the Sonata way is as easy as ...
 
 and 3.
 
-    <!-- ShowArticleSuccess.xml.php -->
+    <!-- in templates/article/ShowSuccess.xml.php -->
     
     <?php echo '<?' ?>xml version="1.0" encoding="utf-8" ?>
     <rsp stat="ok">
