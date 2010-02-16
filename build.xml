@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- build.xml -->
+
+<project name="Sonata Framework" 
+         default="build-sandbox"
+         description="A lightweight framework for building RESTful web services in PHP">
+  
+  <fileset dir="${project.basedir}/data/skeletons/project" id="prjskel" />
+  <fileset dir="${project.basedir}/build" id="build" />
+  
+  <fileset dir="${project.basedir}" id="sonataprj">
+    <exclude name="build.xml" />
+    <exclude name="build/" />
+    <exclude name="data/" />
+    <exclude name="lib/" />
+    <exclude name="test/lib/" />
+  </fileset>
+  
+  <fileset dir="${project.basedir}/lib/sf_yaml" id="sfyamlcmp" />
+  <fileset dir="${project.basedir}/lib/sf_container" id="sfcontainercmp" />
+  
+  <target name="build-sandbox">
+    
+    <property name="project_root" value="${user.home}" />
+    <property name="config_dir" value="config" />
+    <property name="controllers_dir" value="controllers" />
+    <property name="templates_dir" value="templates" />
+
+    <property name="svn_export_lime2" value="n" />
+    
+    <property name="svn_bin_path" value="" />
+    <exec command="which svn" outputProperty="svn_bin_path" />
+    
+    <property name="svn_bin_exists" value="0" />
+
+    <input message="Please specify the build directory"
+           propertyName="project_root"
+           defaultValue="${user.home}"
+           promptChar=" >" />
+           
+    <echo>Building sandbox files ...</echo>
+    
+    <!-- Create build directory -->
+    <mkdir dir="${project.basedir}/build" />
+    
+    <!-- Copy project skeleton to build directory -->
+    <copy todir="${project.basedir}/build">
+      <fileset refid="prjskel" />
+      <filterchain>
+        <replacetokens>
+          <token key="project_root" value="${project_root}/sonata-sandbox" />
+          <token key="config_dir" value="${config_dir}" />
+          <token key="controllers_dir" value="${controllers_dir}" />
+          <token key="templates_dir" value="${templates_dir}" />
+        </replacetokens>
+      </filterchain>
+    </copy>
+    
+    <!-- Copy all sonata files -->
+    <copy todir="${project.basedir}/build/lib/vendor/sonata-framework">
+      <fileset refid="sonataprj" />
+    </copy>
+    
+    <!-- Copy all sf_yaml files -->
+    <copy todir="${project.basedir}/build/lib/vendor/sf_yaml">
+      <fileset refid="sfyamlcmp" />
+    </copy>
+    
+    <!-- Copy all sf_container files -->
+    <copy todir="${project.basedir}/build/lib/vendor/sf_container">
+      <fileset refid="sfcontainercmp" />
+    </copy>
+    
+    <input message="Fetch the Lime2 testing framework via SVN? Y/n"
+           propertyName="svn_export_lime2"
+           defaultValue="${svn_export_lime2}"
+           promptChar=" >" />
+    
+    <if>
+     <equals arg1="${svn_export_lime2}" arg2="Y" />
+     <then>
+       <input message="Specify the path of your svn binary"
+              propertyName="svn_bin_path"
+              defaultValue="${svn_bin_path}"
+              promptChar=" >" />
+              
+       <exec command="test -b ${svn_bin_path}" returnProperty="svn_bin_exists" />
+       <if>
+         <equals arg1="${svn_bin_exists}" arg2="1" />
+         <then>
+           <svnexport
+              svnpath="${svn_bin_path}"
+              force="true"
+              nocache="true"
+              repositoryurl="http://svn.symfony-project.com/tools/lime/branches/2.0/"
+              todir="${project.basedir}/build/test/lib/lime2" />
+         </then>
+         <else>
+            <echo level="error">Could not find svn binary at '${svn_bin_path}'. Will skip this step.</echo>
+          </else>
+       </if>
+     </then>
+     <else>
+       <echo level="warning">The lime2 testing framework is needed if you want to run your test suites.</echo>
+       <echo level="warning">Remember to install it manually (http://svn.symfony-project.com/tools/lime/branches/2.0/)</echo>
+     </else>
+    </if>
+    
+    <echo>Creating sandbox directoy in: ${project_root}/sonata-sandbox ...</echo>
+    <mkdir dir="${project_root}/sonata-sandbox" />
+    
+    <echo>Copying files ...</echo>
+    <copy todir="${project_root}/sonata-sandbox">
+      <fileset refid="build" />
+    </copy>
+    
+    <echo>Cleaning build directory ...</echo>
+    <delete dir="${application.startdir}/build" />
+  
+  </target>
+</project>
