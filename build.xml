@@ -11,7 +11,7 @@
   <fileset dir="${project.basedir}" id="sonataprj">
     <exclude name="build.xml" />
     <exclude name="build/" />
-    <exclude name="data/" />
+    <exclude name="data/skeletons/**" />
     <exclude name="lib/" />
     <exclude name="test/lib/" />
   </fileset>
@@ -101,7 +101,7 @@
        </if>
      </then>
      <else>
-       <echo level="warning">The lime2 testing framework is needed if you want to run your test suites.</echo>
+       <echo level="warning">The lime2 testing framework is required if you want to run your test suites.</echo>
        <echo level="warning">Remember to install it manually (http://svn.symfony-project.com/tools/lime/branches/2.0/)</echo>
      </else>
     </if>
