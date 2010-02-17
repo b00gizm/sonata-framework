@@ -39,11 +39,6 @@
     <exec command="which svn" outputProperty="svn_bin_path" />
     
     <property name="svn_bin_exists" value="0" />
-
-    <input message="Please specify the desired installation path"
-           propertyName="project_root"
-           defaultValue="${user.home}"
-           promptChar=" >" />
            
     <echo>Building sandbox files ...</echo>
     
@@ -105,16 +100,45 @@
      </else>
     </if>
     
+  </target>
+  
+  <target name="install-sandbox" depends="build-sandbox">
+  
+    <property name="install_path" value="${user.home}" />
+  
+    <input message="Please specify the desired installation path"
+           propertyName="install_path"
+           defaultValue="${install_path}"
+           promptChar=" >" />
+  
     <echo>Creating sandbox directoy in: ${project_root}/sonata-sandbox ...</echo>
-    <mkdir dir="${project_root}/sonata-sandbox" />
+    <mkdir dir="${install_path}/sonata-sandbox" />
     
     <echo>Copying files ...</echo>
-    <copy todir="${project_root}/sonata-sandbox">
+    <copy todir="${install_path}/sonata-sandbox">
       <fileset refid="build" />
     </copy>
     
+  </target>
+    
+  <target name="tar-sandbox" depends="build-sandbox">
+    
+    <property name="tarball_path" value="${user.home}" />
+    
+    <input message="Please specify the desired tarball path"
+           propertyName="tarball_path"
+           defaultValue="${tarball_path}"
+           promptChar=" >" />
+           
+    <tar destfile="${tarball_path}/sonata-sandbox.tar" basedir="${project.basedir}/build" compression="gzip"/>
+    
+  </target>
+    
+  <target name="clean">
+    
     <echo>Cleaning build directory ...</echo>
     <delete dir="${application.startdir}/build" />
-  
+    
   </target>
+
 </project>
