@@ -5,10 +5,13 @@
          default="build-sandbox"
          description="A lightweight framework for building RESTful web services in PHP">
   
-  <fileset dir="${project.basedir}/data/skeletons/project" id="prjskel" />
+  <fileset dir="${project.basedir}/data/skeletons/sandbox" id="prjskel" />
   <fileset dir="${project.basedir}/build" id="build" />
   
   <fileset dir="${project.basedir}" id="sonataprj">
+    <exclude name="**/.git/**" />
+    <exclude name="**/.git*" />
+    <exclude name="**/.svn/**" />
     <exclude name="build.xml" />
     <exclude name="build/" />
     <exclude name="data/skeletons/**" />
@@ -16,24 +19,28 @@
     <exclude name="test/lib/" />
   </fileset>
   
-  <fileset dir="${project.basedir}/lib/sf_yaml" id="sfyamlcmp" />
-  <fileset dir="${project.basedir}/lib/sf_container" id="sfcontainercmp" />
+  <fileset dir="${project.basedir}/lib/sf_yaml" id="sfyamlcmp">
+    <exclude name="**/.git/**" />
+    <exclude name="**/.git*" />
+    <exclude name="**/.svn/**" />
+  </fileset>
+    
+  <fileset dir="${project.basedir}/lib/sf_container" id="sfcontainercmp">
+    <exclude name="**/.git/**" />
+    <exclude name="**/.git*" />
+    <exclude name="**/.svn/**" />
+  </fileset>
   
   <target name="build-sandbox">
     
-    <property name="project_root" value="${user.home}" />
-    <property name="config_dir" value="config" />
-    <property name="controllers_dir" value="controllers" />
-    <property name="templates_dir" value="templates" />
-
     <property name="svn_export_lime2" value="n" />
-    
     <property name="svn_bin_path" value="" />
+    
     <exec command="which svn" outputProperty="svn_bin_path" />
     
     <property name="svn_bin_exists" value="0" />
 
-    <input message="Please specify the build directory"
+    <input message="Please specify the desired installation path"
            propertyName="project_root"
            defaultValue="${user.home}"
            promptChar=" >" />
@@ -46,14 +53,6 @@
     <!-- Copy project skeleton to build directory -->
     <copy todir="${project.basedir}/build">
       <fileset refid="prjskel" />
-      <filterchain>
-        <replacetokens>
-          <token key="project_root" value="${project_root}/sonata-sandbox" />
-          <token key="config_dir" value="${config_dir}" />
-          <token key="controllers_dir" value="${controllers_dir}" />
-          <token key="templates_dir" value="${templates_dir}" />
-        </replacetokens>
-      </filterchain>
     </copy>
     
     <!-- Copy all sonata files -->
@@ -79,7 +78,7 @@
     <if>
      <equals arg1="${svn_export_lime2}" arg2="Y" />
      <then>
-       <input message="Specify the path of your svn binary"
+       <input message="Please specify the path to your svn binary"
               propertyName="svn_bin_path"
               defaultValue="${svn_bin_path}"
               promptChar=" >" />

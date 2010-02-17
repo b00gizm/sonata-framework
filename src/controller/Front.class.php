@@ -186,11 +186,11 @@ class Sonata_Controller_Front
     }
   }
   
-  protected function renderError($code, $message = null)
+  protected function renderError($message, $code = 500)
   {
     $this->response->setStatusCode($code);
     $templateView = new Sonata_TemplateView('Error');
-    $templateView->assign('code', $this->response->getStatusCode());
+    $templateView->assign('code', $code);
     $message = is_null($message) ? $this->response->getStatusText() : $message;
     $templateView->assign('message', $message);
     

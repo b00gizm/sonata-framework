@@ -14,14 +14,14 @@ class Sonata_App
 {
   public static function run()
   {
-    $paths = sfConfig::get('paths');
+    $paths = Sonata_Config::get('paths');
     if (empty($paths) || !isset($paths['config']))
     {
       throw new Sonata_Exception_Config('Could not determine the path for the config directory');
     }
     
-    $serviceConfig = $paths['config'].'services.yml';
-    if (!is_readable())
+    $serviceConfig = $paths['config'].DIRECTORY_SEPARATOR.'services.yml';
+    if (!is_readable($serviceConfig))
     {
       throw new RuntimeException(sprintf("The service config file in '%s' does not exist or is not readable", $serviceConfig));
     }
@@ -39,7 +39,7 @@ class Sonata_App
     
     // Create front controller
     $frontController = new Sonata_Controller_Front($dispatcher, $routeMap);
-    $frontController->setFilterChains(new Sonata_Filter_Chain(), new Sonata_Filter_Chain());
+    $frontController->setFilterChains(new Sonata_FilterChain(), new Sonata_FilterChain());
     
     // Add filters
     // TODO

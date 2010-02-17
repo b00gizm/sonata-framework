@@ -29,7 +29,8 @@ Doing it the Sonata way is as easy as ...
     # in config/routing.yml
     
     route_map:
-      resources: articles
+      articles:
+        resources: articles
     
 
 2, ...

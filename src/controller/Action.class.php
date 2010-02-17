@@ -171,7 +171,7 @@ abstract class Sonata_Controller_Action
     
     if (in_array($action, get_class_methods($this)))
     {
-      $res = $this->$action();
+      $res = $this->$action($this->request, $this->response);
       if (substr($action, -6) == 'Action')
       {
         if (is_null($res) || empty($res))
@@ -183,7 +183,7 @@ abstract class Sonata_Controller_Action
         switch ($res)
         {
           case self::ACTION_SUCCESS :
-            $templateViewName = ucfirst(substr($methodName, 0, strlen($methodName) - 6));
+            $templateViewName = substr($action, 0, strlen($action) - 6);
             break;
           case self::ACTION_FAILURE :
             $templateViewName = 'Error';
@@ -193,9 +193,9 @@ abstract class Sonata_Controller_Action
             break;
         }
         
-        $templateView = new Sonata_TemplateView($templateViewName, $request->getParameter('resource'));
+        $templateView = new Sonata_TemplateView($templateViewName, $this->request->getParameter('resource'));
         $templateView->assign($this->getVarHolder()->getAll());
-        $templateView->render($request, $response);
+        $templateView->render($this->request, $this->response);
       }
     }
     else

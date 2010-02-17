@@ -11,7 +11,7 @@ services:
 
   route_map:
     class: Sonata_RouteMap
-    arguments: [@request, [true, "./routing.yml"]]
+    arguments: [@request, { use_config: true, config_file: "<?php echo dirname(__FILE__) ?>/routing.yml" }]
     
   # This is the default parser driver that will be used to parse config
   # files. If you want to use your own, make sure it inherits from

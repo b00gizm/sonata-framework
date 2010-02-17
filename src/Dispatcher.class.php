@@ -35,7 +35,7 @@ class Sonata_Dispatcher
     $className = $this->getControllerClassName($request);
     if (is_null($className))
     {
-      throw new Sonata_Exception_Dispatcher("Could not determine controller name (missing request parameter 'resource')");
+      throw new Sonata_Exception_Dispatcher("Could not determine controller name (missing request parameter 'resource')", 500);
     }
     
     // Load the controller class
@@ -44,7 +44,7 @@ class Sonata_Dispatcher
     $controller = new $className($request, $response);
     if (!$controller instanceof Sonata_Controller_Action)
     {
-      throw new Sonata_Exception_Dispatcher(sprintf("Controller '%s' is not an instance of Sonata_Controller_Action", $className));
+      throw new Sonata_Exception_Dispatcher(sprintf("Controller '%s' is not an instance of Sonata_Controller_Action", $className), 500);
     }
     
     // Retrieve action name. If no action name was given, switch to 'list' action
@@ -75,7 +75,7 @@ class Sonata_Dispatcher
     }
     else
     {
-      throw new Sonata_Exception_Dispatcher(sprintf("Could not load controller class '%s' in directory '%s'", $className, $this->controllerDir));
+      throw new Sonata_Exception_Dispatcher(sprintf("Could not load controller class '%s' in directory '%s'", $className, $this->controllersDir), 500);
     }
   }
 }
