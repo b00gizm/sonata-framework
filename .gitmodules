@@ -4,3 +4,6 @@
 [submodule "lib/sf_container"]
 	path = lib/sf_container
 	url = git://github.com/fabpot/dependency-injection.git
+[submodule "test/lib/lime2"]
+	path = test/lib/lime2
+	url = git://github.com/bschussek/lime.git
