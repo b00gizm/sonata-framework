@@ -1,6 +1,7 @@
 <?php
 
 require_once dirname(__FILE__).'/../config/bootstrap.php';
+require_once dirname(__FILE__).'/../lib/SandboxApp.class.php';
 
-// Let it roll!
-Sonata_App::run();
+$app = new SandboxApp('prod', false);
+$app->run();

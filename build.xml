@@ -12,6 +12,7 @@
     <exclude name="**/.git/**" />
     <exclude name="**/.git*" />
     <exclude name="**/.svn/**" />
+    <exclude name="**/.emptyDirectory*" />
     <exclude name="build.xml" />
     <exclude name="build/" />
     <exclude name="data/skeletons/**" />

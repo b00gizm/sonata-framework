@@ -1,7 +1,0 @@
-paths:
-  #directories
-  templates: <?php echo dirname(__FILE__) ?>/../templates
-  commands:  <?php echo dirname(__FILE__) ?>/../commands
-  
-  #config_files
-  routes:    <?php echo dirname(__FILE__) ?>/../routing/routing.yml

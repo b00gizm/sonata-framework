@@ -41,54 +41,41 @@ class Sonata_RouteMap
    *                        * use_config  - Whether to use config file for route mappings
    *                        * config_file - Path of the route mapping config file
    */
-  public function __construct(Sonata_Request $request, $options = array())
+  public function __construct(Sonata_Request $request)
   {
     $this->request = $request;
-    $this->options = $options;
-    
-    $this->init();
   }
   
   /**
-   * Initializes the route map object
-   */
-  protected function init()
-  {    
-    $defaultOptions = array(
-      'use_config'  => false,
-    );
-    
-    // Merge options with default options
-    $this->options = array_merge($defaultOptions, $this->options);
-    
-    // Check options
-    if ($this->options['use_config'] === true)
-    {
-      if (is_readable($this->options['config_file']))
-      {
-        $this->mapFromConfig($this->options['config_file']);
-      }
-    }
-  }
-  
-  /**
-   * Tries to map all routes from a config file
+   * Tries to load all routes from a config file
    *
    * @param string $routingConfig The path to the config file 
+   * @param Sonata_Parser_Config $parser A config parser instance
    * @throws Exception
    */
-  protected function mapFromConfig($routingConfig)
+  public function load($routingConfig, Sonata_Parser_Config $parser = null)
   {  
     try
     {
-      Sonata_Config::load($routingConfig, new Sonata_Parser_Config(new Sonata_Parser_Driver_Yaml()));
-      $mappings = Sonata_Config::get('route_map');
+      if (is_null($parser))
+      {
+        $parser = new Sonata_Parser_Config(new Sonata_Parser_Driver_Yaml());
+      }
+      
+      $res = $parser->parse($routingConfig);
+      $mappings = (isset($res['route_map'])) ? $res['route_map'] : array();
+      
       if (!empty($mappings))
       {
         if (is_array($mappings))
         {
           foreach ($mappings as $key => $mapping) 
           {
+            if (!is_array($mapping))
+            {
+              return;
+            }
+
             $keys = array_keys($mapping);
             switch ($keys[0])
             {
@@ -127,8 +114,8 @@ class Sonata_RouteMap
       }
     }
     catch (Exception $ex)
-    { 
-      // Actually does nothing ...
+    {
+      // TODO: exception handling
     }
   }
   

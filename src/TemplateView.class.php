@@ -13,11 +13,18 @@
 class Sonata_TemplateView
 {
   /**
+   * Templates directory
+   *
+   * @var string
+   */
+  protected $dir;
+  
+  /**
    * Name of the template
    *
    * @var string
    */
-  protected $template;
+  protected $name;
   
   /**
    * Name of the resource the template belongs to
@@ -39,10 +46,29 @@ class Sonata_TemplateView
    * @param string $template Name of the template to be rendered
    * @param string $resource Name of the resource the template belongs to
    */
-  public function __construct($template, $resource = null)
+  public function __construct()
   {
-    $this->template = $template;
-    $this->resource = $resource;
+    // Actually does nothing ...
+  }
+  
+  /**
+   * Setter template dir
+   *
+   * @param string $dir The template directory
+   */
+  public function setDir($dir)
+  {
+    $this->dir = $dir;
+  }
+  
+  /**
+   * Getter template dir
+   *
+   * @return string The template directory
+   */
+  public function getDir()
+  {
+    return $this->dir;
   }
   
   /**
@@ -102,44 +128,34 @@ class Sonata_TemplateView
   }
   
   /**
-   * Renders a template
+   * Renders a template and returns the raw data
    *
-   * @param Sonata_Request $request The HTTP request object
-   * @param Sonata_Response $response The HTTP response object
-   * @throws Sonata_Exception_Config
-   * @throws Sonata_Exception_Template
+   * @param string $name The name of the template 
+   * @param string $resource The name of the resource | NULL for generic templates
+   * @param string $format The response format
+   * @return string The rendered data
    */
-  public function render(Sonata_Request $request, Sonata_Response $response)
+  public function render($name, $resource = null, $format = 'xml')
   {
-    $format = $request->getParameter('format');
-    if (!is_null($format) && !empty($format))
+    if ($resource)
     {
-      $response->setFormat($format);
-    }
-    
-    if ($this->resource)
-    {
-      $paths = Sonata_Config::get('paths');
-      if (empty($paths) || !isset($paths['templates']))
-      {
-        throw new Sonata_Exception_Config('Could not determine the path for the templates directory');
-      }
-      $filename = $paths['templates'].DIRECTORY_SEPARATOR.$this->resource.DIRECTORY_SEPARATOR.$this->template.'Success.'.$response->getFormat().'.php';
+      $templatePath = $this->dir.'/'.Sonata_Utils::underscore($resource).'/'.$name.'Success.'.$format.'.php';
     }
     else
     {
-      $filename = dirname(__FILE__).'/../data/templates/'.$this->template.'Success.'.$response->getFormat().'.php';
+      $templatePath = dirname(__FILE__).'/../data/templates/'.$name.'Success.'.$format.'.php';
     }
     
-    if (!is_readable($filename))
+    if (!is_readable($templatePath))
     {
-      throw new Sonata_Exception_Template(sprintf("The template '%s' does not exist or is not readable.", $filename));
+      throw new Sonata_Exception_Template(sprintf("The template '%s' does not exist or is not readable.", $name));
     }
     
     ob_start();
-    include $filename;
+    include $templatePath;
     $data = ob_get_clean();
-    $response->appendToBody($data);
+    
+    return $data;
   }
 }
 

@@ -11,6 +11,8 @@ require_once dirname(__FILE__).'/bootstrap.php';
 
 $t = new LimeTest();
 
+// @BeforeAll
+
 class Foo 
 {
   private $foo = null;
@@ -38,14 +40,12 @@ class Foo
 
 // @Before
 
-
 $paramHolder = new Sonata_ParameterHolder();
-
-$params = array(
+$paramHolder->add($params = array(
   'foo' => 42,
   'bar' => 4711,
   'baz' => new Foo(),
-);
+));
 
 // @After
 
@@ -54,7 +54,6 @@ unset($params);
 
 // @Test: ->add()
 
-$paramHolder->add($params);
 $t->is($paramHolder->getAll(), $params, 'All parameters were added correctly');
 $paramHolder->add(null);
 $t->isnt($paramHolder->getAll(), null, 'Nothing is added if NULL was given');

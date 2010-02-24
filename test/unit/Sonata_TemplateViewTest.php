@@ -13,79 +13,76 @@ $t = new LimeTest();
 
 // @Before
 
-$fh = fopen(dirname(__FILE__).'/../fixtures/templates/Foo.php', 'wb');
-fputs($fh, 'This will fail');
-fclose($fh);
-
-$fh = fopen(dirname(__FILE__).'/../fixtures/templates/MyCommandSuccess.xml.php', 'wb');
-fputs($fh, '<h1>This will pass</h1>');
-fclose($fh);
-
-$request = new Sonata_Request();
-$response = new Sonata_Response();
+$templateView = new Sonata_TemplateView();
 
 // @After
 
-unlink(dirname(__FILE__).'/../fixtures/templates/Foo.php');
-unlink(dirname(__FILE__).'/../fixtures/templates/MyCommandSuccess.xml.php');
+unset($templateView);
 
-unset($request);
-unset($response);
+// @Test: ->assign() - with single arguments
 
-// @Test: ->assign()
+$templateView->assign('foo', 42);
+$templateView->assign('bar', 4711);
 
-$tv = new Sonata_TemplateView('Bar');
-$tv->assign('foo', 42);
-$tv->assign('bar', 4711);
-$t->is($tv->getTemplateVars(), array('foo' => 42, 'bar' => 4711), 'The template vars were assigned correctly');
+$t->is($templateView->getTemplateVars(), array('foo' => 42, 'bar' => 4711), 'Template vars are assigned correctly (single)');
 
-$tv->assign(array('baz' => 123, 'quux' => 456));
-$t->is($tv->getTemplateVars(), array('foo' => 42, 'bar' => 4711, 'baz' => 123, 'quux' => 456), 'You can even assign a whole array with key/value pairs');
+// @Test: ->assign() - with array as argument
+
+$templateView->assign(array('foo' => 42, 'bar' => 4711));
+
+$t->is($templateView->getTemplateVars(), array('foo' => 42, 'bar' => 4711), 'Template vars are assigned correctly (array)');
 
 // @Test: ->__get()
 
-$tv = new Sonata_TemplateView('Bar');
-$tv->assign('foo', 42);
-$tv->assign('bar', 4711);
-$t->is($tv->foo, 42, 'Assigned template vars are retrieved correctly via __get');
-$t->is($tv->baz, null, 'Non-existing template vars are NULL per default');
+$templateView->assign('foo', 42);
 
-// @Test: ->render()
+$t->is($templateView->foo, 42, 'Template vars retrieved correctly via PHP\'s magic \'__get\' method');
 
-$tv = new Sonata_TemplateView('Foo');
+// @Test: ->render() - non-existing templates
+
+$templateView->setDir(dirname(__FILE__).'/../fixtures/templates');
 
 try
 {
-  $tv->render($request, $response);
-  $t->fail();
-}
-catch (Sonata_Exception_Config $ex)
-{
-  $t->pass('An exception is thrown Sonata_Template_View could not determine the path for the templates directory');
-}
-
-$parser = new Sonata_Parser_Config(new Sonata_Parser_Driver_Yaml());
-Sonata_Config::load(dirname(__FILE__).'/../fixtures/config/sonata.yml', $parser);
-
-try
-{
-  $tv->render($request, $response);
-  $t->fail();
+  $templateView->render('foo', 'article', 'xml');
+  $t->fail('No code should be executed after this');
 }
 catch (Sonata_Exception_Template $ex)
 {
-  $t->pass('An exception is thrown if you try to access a non-existing template');
+  $t->pass('Throws an exception for non-existing templates');
 }
 
-$tv = new Sonata_TemplateView('MyCommand');
-try
-{
-  $tv->render($request, $response);
-  $t->pass('No exception will be thrown for existing template files');
-}
-catch (Sonata_Exception_Template $ex)
-{
-  $t->fail();
-}
+// @Test: ->render() - existing templates
 
-$t->is($response->getBody(), '<h1>This will pass</h1>', 'The template\'s content was append to the response\'s body correctly');
+$templateView->setDir(dirname(__FILE__).'/../fixtures/templates');
+
+$expectedData = <<<EOF
+<?xml version="1.0" encoding="utf-8" ?>
+<rsp stat="ok">
+  <article id="123">
+    <title>Example</title>
+    <body>My article example</body>
+    <author>John Doe</author>
+  </article>
+</rsp>
+
+EOF;
+
+$t->is($templateView->render('list', 'article', 'xml'), $expectedData, 'The template is rendered correctly');
+
+// @Test: ->render() - error templates
+
+$templateView->setDir(dirname(__FILE__).'/../fixtures/templates');
+$templateView->assign(array('code' => 123, 'message' => 'My error message example'));
+
+$expectedData = <<<EOF
+<?xml version="1.0" encoding="utf-8" ?>
+<rsp stat="error">
+  <code>123</code>
+  <message>My error message example</message>
+</rsp>
+
+EOF;
+
+$t->is($templateView->render('Error', NULL, 'xml'), $expectedData, 'The error template is rendered correctly');
+

@@ -52,7 +52,7 @@ abstract class Sonata_Controller_Action
   /**
    * Gets the var holder
    *
-   * @return Sonata_ParameterHolder
+   * @return Sonata_ParameterHolder the var holder
    */
   public function getVarHolder()
   {
@@ -69,7 +69,8 @@ abstract class Sonata_Controller_Action
    */
   public function __set($name, $value)
   {
-    return $this->varHolder->setByRef($name, $value);
+    echo "Hier";
+    $this->varHolder->setByRef($name, $value);
   }
   
   /**
@@ -123,7 +124,12 @@ abstract class Sonata_Controller_Action
     $this->request = $request;
     $this->response = $response;
     
-    $this->varHolder = new Sonata_ParameterHolder();
+    $this->varHolder = $this->initializeVarHolder();
+  }
+  
+  protected function initializeVarHolder()
+  {
+    return new Sonata_ParameterHolder();
   }
   
   public function setRequest(Sonata_Request $request)
@@ -165,13 +171,13 @@ abstract class Sonata_Controller_Action
     throw new Sonata_Exception_Controller_Action(sprintf("Method '%s' does not exist", $methodName), 500);
   }
   
-  public function dispatch($action)
+  public function dispatch($action, Sonata_TemplateView $templateView)
   {
     $this->preDispatch();
     
     if (in_array($action, get_class_methods($this)))
     {      
-      $res = $this->$action($this->request, $this->response);
+      $res = $this->$action();
       if (substr($action, -6) == 'Action')
       {
         if (is_null($res) || empty($res))
@@ -180,7 +186,7 @@ abstract class Sonata_Controller_Action
         }
 
         $templateViewName = null;
-        $resouce = $this->request->getParameter('resource');
+        $resource = $this->request->getParameter('resource');
         switch ($res)
         {
           case self::ACTION_SUCCESS :
@@ -195,9 +201,14 @@ abstract class Sonata_Controller_Action
             break;
         }
         
-        $templateView = new Sonata_TemplateView($templateViewName, $resource);
-        $templateView->assign($this->getVarHolder()->getAll());
-        $templateView->render($this->request, $this->response);
+        // Assign template vars
+        $templateView->assign($this->varHolder->getAll());
+        
+        // Render template and save raw data
+        $rawData = $templateView->render($templateViewName, $resource, $this->request->getParameter('format'));
+        
+        // Append raw data to response body
+        $this->response->appendToBody($rawData);
       }
     }
     else

@@ -13,11 +13,11 @@
  
 class Sonata_Dispatcher
 {
-  protected $controllersDir = null;
+  protected $container = null;
   
-  public function __construct()
+  public function __construct(sfServiceContainerInterface $container)
   {
-    // Actually does nothing ...
+    $this->container = $container;
   }
   
   public function setControllersDir($directory)
@@ -30,28 +30,50 @@ class Sonata_Dispatcher
     return $this->controllersDir;
   }
   
-  public function dispatch(Sonata_Request $request, Sonata_Response $response)
+  public function dispatch()
   {
-    $className = $this->getControllerClassName($request);
-    if (is_null($className))
+    $request      = $this->container->getService('request');
+    $response     = $this->container->getService('response');
+    $routeMap     = $this->container->getService('route_map');
+    $templateView = $this->container->getService('template_view');
+    
+    try
     {
-      throw new Sonata_Exception_Dispatcher("Could not determine controller name (missing request parameter 'resource')", 500);
+      $routeString = $request->getParameter('route');
+      
+      if (!$routeMap->resolveRouteString($routeString))
+      {
+        throw new Sonata_Exception_Dispatcher(sprintf("Could not resolve route '%s'. Please check your routing configuration", $routeString), 500);
+      }
+      
+      $className = $this->getControllerClassName($request);
+      if (is_null($className))
+      {
+        throw new Sonata_Exception_Dispatcher("Could not determine controller name (missing request parameter 'resource')", 500);
+      }
+
+      // Load the controller class
+      $this->loadControllerClass($className);
+
+      $controller = new $className($request, $response);
+      if (!$controller instanceof Sonata_Controller_Action)
+      {
+        throw new Sonata_Exception_Dispatcher(sprintf("Controller '%s' is not an instance of Sonata_Controller_Action", $className), 500);
+      }
+
+      // Retrieve action name. If no action name was given, switch to 'list' action
+      $action = $request->getParameter('action', 'list');
+
+      // Dispatch the action
+      $controller->dispatch($action.'Action', $templateView);
     }
-    
-    // Load the controller class
-    $this->loadControllerClass($className);
-    
-    $controller = new $className($request, $response);
-    if (!$controller instanceof Sonata_Controller_Action)
+    catch (Sonata_Exception_Dispatcher $ex)
     {
-      throw new Sonata_Exception_Dispatcher(sprintf("Controller '%s' is not an instance of Sonata_Controller_Action", $className), 500);
+      $templateView->assign('code', $ex->getCode());
+      $templateView->assign('message', $ex->getMessage());
+      $rawData = $templateView->render('Error', null, $request->getParameter('format'));
+      $response->appendToBody($rawData);
     }
-    
-    // Retrieve action name. If no action name was given, switch to 'list' action
-    $action = $request->getParameter('action', 'list');
-    
-    // Dispatch the action
-    $controller->dispatch($action.'Action');
   }
   
   public function getControllerClassName(Sonata_Request $request)
@@ -62,12 +84,12 @@ class Sonata_Dispatcher
       return null;
     }
     
-    return ucfirst($resource).'Controller';
+    return ucfirst(Sonata_Utils::camelize($resource)).'Controller';
   }
   
   public function loadControllerClass($className)
   {
-    $controllerPath = $this->controllersDir.DIRECTORY_SEPARATOR.$className.'.class.php';
+    $controllerPath = $this->controllersDir.'/'.$className.'.class.php';
     if (is_readable($controllerPath))
     {
       require_once $controllerPath;

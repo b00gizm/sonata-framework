@@ -13,6 +13,8 @@
  **/
 class Sonata_Autoloader
 {
+  protected $extraDirs = array();
+  
   /**
    * Registers Sonata_Autoloader as an SPL autoloader
    *
@@ -41,13 +43,33 @@ class Sonata_Autoloader
     array_shift($parts);
     
     $path = dirname(__FILE__).'/'.implode('/', $parts).'.class.php';
-    if (strpos($class, 'Sonata') !== 0 || !is_readable($path))
+    if (strpos($class, 'Sonata') === 0 && is_readable($path))
     {
-      return false;
+      require_once $path;
+      return true;
     }
     
-    require_once $path;
+    foreach ($this->extraDirs as $dir)
+    {
+      $path = $dir.'/'.$class.'.class.php';
+      if (is_readable($path))
+      {
+        require_once $path;
+        
+        return true;
+      }
+    }
     
-    return true;
+    return false;
+  }
+  
+  public function registerExtraDirs(array $dirs)
+  {
+    $this->extraDirs = $dirs;
+  }
+  
+  public function getExtraDirs()
+  {
+    return $this->extraDirs;
   }
 }

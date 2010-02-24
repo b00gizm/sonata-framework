@@ -13,9 +13,6 @@ $t = new LimeTest();
 
 // @Before
 
-$parser = new Sonata_Parser_Config(new Sonata_Parser_Driver_Yaml());
-Sonata_Config::load(dirname(__FILE__).'/../fixtures/config/sonata.yml', $parser);
-
 $request = new Sonata_Request();
 $rm = new Sonata_RouteMap($request);
 
@@ -202,9 +199,32 @@ $t->diag('...trying a PUT request');
 $t->is($rm->resolveRouteString('albums/123/images/4711.xml'), true, '\'albums/123/images/4711.xml\' is resolved correctly');
 $t->is($rm->resolveRouteString('albums/123/images.xml'), false, '\'albums/123/images.xml\' cannot be resolved');
 
-// Use of config file
+// @Test: ->load() - Load from config
 
-$t->diag('Mapping routes from a config file');
+$configPath = '/path/to/config.yml';
 
-$rm = new Sonata_RouteMap($request, array('use_config' => true));
-$t->is(count($rm->getRoutes()), 11, 'All routes from the config file were mapped correctly');
+$configParserStub = $t->stub('Sonata_Parser_Config');
+$configParserStub->parse($configPath)->returns(array(
+  'route_map' => array(
+    'resources_example' => array(
+      'resources'  => 'articles',
+    ),
+    
+    'nested_resources_example' => array(
+      'resources'  => array('comments', 'articles'),
+    ),
+    
+    'connect_example' => array(
+      'connect' => array(
+        'pattern'  => '/articles/recent.:format',
+        'resource' => 'article',
+        'verbs'    => array('GET'),
+        'action'   => 'listRecent',
+      )
+    )
+  )
+));
+$configParserStub->replay();
+
+$rm->load($configPath, $configParserStub);
+$t->is(count($rm->getRoutes()), 11, 'All 11 routes were connected (added) to the routes array');
