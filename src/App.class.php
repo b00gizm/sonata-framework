@@ -109,7 +109,7 @@ abstract class Sonata_App
     
     $request      = $this->container->getService('request');
     $response     = $this->container->getService('response');
-    $routeMap     = $this->container->getService('routeMap');
+    $routeMap     = $this->container->getService('route_map');
     $templateView = $this->container->getService('template_view'); 
     
     $appDir = $this->registerAppDir();
@@ -119,13 +119,14 @@ abstract class Sonata_App
     
     $this->initializePreFilterChain()->processFilters($request, $response); 
     
-    $dispatcher->setControllersDir(isset($paths['controllers'] ? $paths['controllers'] : '');
-    $dispatcher->setTemplatesDir(isset($paths['templates'] ? $paths['templates'] : '');
+    $dispatcher = $this->createDispatcher();
+    $dispatcher->setControllersDir(isset($paths['controllers']) ? $paths['controllers'] : '');
+    $dispatcher->setTemplatesDir(isset($paths['templates']) ? $paths['templates'] : '');
     
-    $templateView->setDir(isset($paths['templates'] ? $paths['templates'] : '');
+    $templateView->setDir(isset($paths['templates']) ? $paths['templates'] : '');
     $this->createDispatcher()->dispatch();
     
-    $this->initializePreFilterChain()->processFilters($request, $response); 
+    $this->initializePostFilterChain()->processFilters($request, $response); 
     
     $end = microtime();
     $duration = ($this->getMicrotime($end) - $this->getMicrotime($start));
