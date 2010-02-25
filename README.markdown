@@ -62,7 +62,7 @@ Doing it the Sonata way is as easy as ...
 
 and 3.
 
-    <!-- in templates/article/ShowSuccess.xml.php -->
+    <!-- in templates/article/showSuccess.xml.php -->
     
     <?php echo '<?' ?>xml version="1.0" encoding="utf-8" ?>
     <rsp stat="ok">
