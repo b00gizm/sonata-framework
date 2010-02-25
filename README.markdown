@@ -67,7 +67,7 @@ and 3.
     <?php echo '<?' ?>xml version="1.0" encoding="utf-8" ?>
     <rsp stat="ok">
       <articles>
-        <article id="<?php echo $article->getId() ?>">
+        <article id="<?php echo $article->id ?>">
           <title><?php echo $article->title ?></title>
           <body><?php echo $article->body ?></body>
           <created_at><?php echo $article->created_at ?></created_at>
