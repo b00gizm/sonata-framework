@@ -16,6 +16,8 @@ abstract class Sonata_App
   
   protected $isDebug = false;
   
+  protected $paths = array();
+  
   protected $container = null;
   
   protected function initializeContainer()
@@ -90,6 +92,7 @@ abstract class Sonata_App
     $this->environment = $environment;
     $this->isDebug = (bool)$isDebug;
     
+    $this->paths = $this->registerPaths();
     $this->container = $this->initializeContainer();
   }
   
@@ -121,7 +124,6 @@ abstract class Sonata_App
     
     $dispatcher = $this->createDispatcher();
     $dispatcher->setControllersDir(isset($paths['controllers']) ? $paths['controllers'] : '');
-    $dispatcher->setTemplatesDir(isset($paths['templates']) ? $paths['templates'] : '');
     
     $templateView->setDir(isset($paths['templates']) ? $paths['templates'] : '');
     $this->createDispatcher()->dispatch();
@@ -148,5 +150,10 @@ abstract class Sonata_App
   public function getIsDebug()
   {
     return $this->isDebug;
+  }
+  
+  public function getPaths()
+  {
+    return $this->paths;
   }
 }

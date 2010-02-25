@@ -9,7 +9,7 @@
 
 require_once dirname(__FILE__).'/bootstrap.php';
 
-$t = new LimeTest();
+$t = new LimeTest(11);
 
 // @BeforeAll
 
@@ -130,7 +130,6 @@ $t = new LimeTest();
   $preFilterChainMock->replay();
   
   $dispatcherMock->setControllersDir(dirname(__FILE__).'/../controllers')->once();
-  $dispatcherMock->setTemplatesDir(dirname(__FILE__).'/../templates')->once();
   $dispatcherMock->dispatch()->once();
   $dispatcherMock->replay();
   
@@ -141,6 +140,11 @@ $t = new LimeTest();
   
   $t->is($app->getEnvironment(), 'prod', 'The default environment was set correctly');
   $t->is($app->getIsDebug(), false, 'The default \'isDebug\' flag was set correctly');
+  $t->is($app->getPaths(), array(
+    'config'      => dirname(__FILE__).'/../config',
+    'controllers' =>  dirname(__FILE__).'/../controllers',
+    'templates'   =>  dirname(__FILE__).'/../templates',
+  ), 'The paths were set correctly');
   
   $containerMock->verify();
   $preFilterChainMock->verify();
