@@ -107,15 +107,20 @@ $t = new LimeTest();
 
   $templateViewMock->assign('code', 500)->once();
   $templateViewMock->assign('message', 'Could not resolve route \'foo/bar.xml\'. Please check your routing configuration')->once();
-  $templateViewMock->render('Error', null, 'xml')->once();
+  $templateViewMock->render('Error', null, 'xml')->returns('<?xml version="1.0" encoding="utf-8"><foo></foo>')->once();
   $templateViewMock->replay();
+  
+  $responseMock->appendToBody('<?xml version="1.0" encoding="utf-8"><foo></foo>')->once();
+  $responseMock->flush()->once();
+  $responseMock->replay();
 
   $dispatcher->dispatch();
 
   $containerMock->verify();
-  $routeMapMock->verify();
+  $requestMock->verify();
   $routeMapMock->verify();
   $templateViewMock->verify();
+  $responseMock->verify();
 
   // @Test: simulating non-existing controller class
 
@@ -131,8 +136,12 @@ $t = new LimeTest();
 
   $templateViewMock->assign('code', 500)->once();
   $templateViewMock->assign('message', sprintf("Could not load controller class '%s' in directory '%s'", 'NonExistingController', (dirname(__FILE__).'/../fixtures/controllers')))->once();
-  $templateViewMock->render('Error', null, 'xml')->once();
+  $templateViewMock->render('Error', null, 'xml')->returns('<?xml version="1.0" encoding="utf-8"><foo></foo>')->once();
   $templateViewMock->replay();
+  
+  $responseMock->appendToBody('<?xml version="1.0" encoding="utf-8"><foo></foo>')->once();
+  $responseMock->flush()->once();
+  $responseMock->replay();
 
   $dispatcher->dispatch();
 
@@ -140,6 +149,7 @@ $t = new LimeTest();
   $routeMapMock->verify();
   $routeMapMock->verify();
   $templateViewMock->verify();
+  $responseMock->verify();
 
   // @Test: simulating an invalid controller class
 
@@ -155,8 +165,12 @@ $t = new LimeTest();
 
   $templateViewMock->assign('code', 500)->once();
   $templateViewMock->assign('message', sprintf("Controller '%s' is not an instance of Sonata_Controller_Action", 'InvalidController'))->once();
-  $templateViewMock->render('Error', null, 'xml')->once();
+  $templateViewMock->render('Error', null, 'xml')->returns('<?xml version="1.0" encoding="utf-8"><foo></foo>')->once();
   $templateViewMock->replay();
+  
+  $responseMock->appendToBody('<?xml version="1.0" encoding="utf-8"><foo></foo>')->once();
+  $responseMock->flush()->once();
+  $responseMock->replay();
 
   $dispatcher->dispatch();
 
@@ -164,6 +178,7 @@ $t = new LimeTest();
   $routeMapMock->verify();
   $routeMapMock->verify();
   $templateViewMock->verify();
+  $responseMock->verify();
 
   // @Test: simulating a valid controller class
 
@@ -178,8 +193,13 @@ $t = new LimeTest();
   $routeMapMock->resolveRouteString('foo/bar.xml')->returns(true);
   $routeMapMock->replay();
 
+  $responseMock->any('appendToBody')->never();
+  $responseMock->flush()->once();
+  //$responseMock->replay();
+
   $dispatcher->dispatch();
 
   $containerMock->verify();
   $routeMapMock->verify();
   $routeMapMock->verify();
+  //$responseMock->verify();

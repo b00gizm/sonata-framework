@@ -74,6 +74,9 @@ class Sonata_Dispatcher
       $rawData = $templateView->render('Error', null, $request->getParameter('format'));
       $response->appendToBody($rawData);
     }
+    
+    // Flush the output
+    $response->flush();
   }
   
   public function getControllerClassName(Sonata_Request $request)
