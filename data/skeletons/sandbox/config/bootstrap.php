@@ -1,12 +1,10 @@
 <?php
 
 // Register the Sonata autoloader
+// Add additional directories for autoloading via 'extend'
 require_once dirname(__FILE__).'/../lib/vendor/sonata-framework/src/Autoloader.class.php';
 Sonata_Autoloader::register();
-
-// Register extra directories to search for files for autoloading
-$autoloader = new Sonata_Autoloader();
-$autoloader->registerExtraDirs(array(
+Sonata_Autoloader::extend(array(
   dirname(__FILE__).'/../lib',
 ));
 
