@@ -29,10 +29,7 @@ $t = new LimeTest();
 
 // @Before
 
-  $configFile = dirname(__FILE__).'/../fixtures/config/some_random_config.yml';
-  $fh = fopen($configFile, 'wb');
-  fclose($fh);
-
+  $configFile = dirname(__FILE__).'/../fixtures/config/foo.yml';
   $cp = new Sonata_Parser_Config(new MyParserDriver());
 
 
