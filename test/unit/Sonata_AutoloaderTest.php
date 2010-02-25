@@ -9,7 +9,7 @@
 
 require_once dirname(__FILE__).'/bootstrap.php';
 
-$t = new LimeTest(8);
+$t = new LimeTest(7);
 
 // @BeforeAll
 
@@ -55,10 +55,9 @@ $t = new LimeTest(8);
   $t->is($autoloader->autoload('Foo'), false, 'Returns false if the class name does not start with \'Sonata\'');
   $t->is($autoloader->autoload('Sonata_Not_Here'), false, 'Returns false for non-existing classes');
 
-// @Test: ->registerExraDirs() registers extra directories for autoloading
+// @Test: ::extend() registers extra directories for autoloading
 
   $t->is($autoloader->autoload('Extra'), false, 'The \'Extra\' class cannot be autoloaded because its path isn\'t registered for autoloading');
-
-  $autoloader->registerExtraDirs(array(dirname(__FILE__).'/../fixtures'));
-  $t->is($autoloader->getExtraDirs(), array(dirname(__FILE__).'/../fixtures'), 'The extra directories are registered correctly');
+  
+  Sonata_Autoloader::extend(array(dirname(__FILE__).'/../fixtures'));
   $t->is($autoloader->autoload('Extra'), true, 'The \'Extra\' class is now autoloaded correctly');

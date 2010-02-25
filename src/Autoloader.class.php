@@ -13,7 +13,7 @@
  **/
 class Sonata_Autoloader
 {
-  protected $extraDirs = array();
+  static protected $extraDirs = array();
   
   /**
    * Registers Sonata_Autoloader as an SPL autoloader
@@ -38,7 +38,7 @@ class Sonata_Autoloader
    * @return boolean Returns true if the class could be loaded, FALSE otherwise
    */
   public function autoload($class)
-  {
+  {    
     $parts = explode('_', $class);
     array_shift($parts);
     
@@ -49,7 +49,7 @@ class Sonata_Autoloader
       return true;
     }
     
-    foreach ($this->extraDirs as $dir)
+    foreach (self::$extraDirs as $dir)
     {
       $path = $dir.'/'.$class.'.class.php';
       if (is_readable($path))
@@ -63,13 +63,8 @@ class Sonata_Autoloader
     return false;
   }
   
-  public function registerExtraDirs(array $dirs)
+  public static function extend(array $extraDirs)
   {
-    $this->extraDirs = $dirs;
-  }
-  
-  public function getExtraDirs()
-  {
-    return $this->extraDirs;
+    self::$extraDirs = $extraDirs;
   }
 }
