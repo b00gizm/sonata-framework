@@ -130,6 +130,8 @@ abstract class Sonata_App
     
     $end = microtime();
     $duration = ($this->getMicrotime($end) - $this->getMicrotime($start));
+    
+    // TODO: So something useful with the duration info
   }
   
   protected function getMicrotime($t)
