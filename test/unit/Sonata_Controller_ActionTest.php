@@ -13,164 +13,173 @@ $t = new LimeTest();
 
 // @BeforeAll
 
-class FooController extends Sonata_Controller_Action
-{
-  protected $varHolderMock = null;
-  
-  public function __construct(Sonata_Request $request, Sonata_Response $response, Sonata_ParameterHolder $varHolderMock)
+  class FooController extends Sonata_Controller_Action
   {
-    $this->varHolderMock = $varHolderMock;
-    parent::__construct($request, $response);
-  }
+    protected $varHolderMock = null;
   
-  protected function initializeVarHolder()
-  {
-    return $this->varHolderMock;
-  }
+    public function __construct(Sonata_Request $request, Sonata_Response $response, Sonata_ParameterHolder $varHolderMock)
+    {
+      $this->varHolderMock = $varHolderMock;
+      parent::__construct($request, $response);
+    }
+  
+    protected function initializeVarHolder()
+    {
+      return $this->varHolderMock;
+    }
     
-  public function fooAction()
-  {
-  }
+    public function fooAction()
+    {
+    }
   
-  public function barAction()
-  {
-    return self::ACTION_FAILURE;
-  }
+    public function barAction()
+    {
+      return self::ACTION_FAILURE;
+    }
   
-  public function myBar()
-  {
+    public function myBar()
+    {
+    }
   }
-}
 
 // @Before
 
-$requestMock = $t->mock('Sonata_Request');
-$responseMock = $t->mock('Sonata_Response');
-$varHolderMock = $t->mock('Sonata_ParameterHolder');
-$templateVewMock = $t->mock('Sonata_TemplateView');
+  $requestMock = $t->mock('Sonata_Request');
+  $responseMock = $t->mock('Sonata_Response');
+  $varHolderMock = $t->mock('Sonata_ParameterHolder');
+  $templateVewMock = $t->mock('Sonata_TemplateView');
 
-$fooController = new FooController($requestMock, $responseMock, $varHolderMock);
+  $fooController = new FooController($requestMock, $responseMock, $varHolderMock);
 
-// @Test: ->dispatch() - general
+// @After
 
-try 
-{
-  $fooController->dispatch('fail', $templateVewMock);
-  $t->fail('No code should be executed after calling non-existing actions');
-}
-catch (Sonata_Exception_Controller_Action $ex)
-{
-  $t->pass('An exception is thrown for non-existing actions');
-}
+  unset($requestMock);
+  unset($responseMock);
+  unset($varHolderMock);
+  unset($templateVewMock);
 
-try
-{
-  $fooController->dispatch('myBar', $templateVewMock);
-  $t->pass('Existing methods are executed correctly');
-}
-catch (Sonata_Exception_Controller_Action $ex)
-{
-  $t->fail('No exception should be thrown for existing methods');
-}
+// @Test: ->dispatch()
 
-try
-{
-  $fooController->dispatch('myBaz', $templateVewMock);
-  $t->fail('No code should be executed after calling non-existing methods');
-}
-catch (Sonata_Exception_Controller_Action $ex)
-{
-  $t->pass('An exception is thrown for non-existing methods');
-}
+  // @Test: general
 
-// @Test: ->dispatch() - action returning Sonata_Controller_Action::ACTION_SUCCESS
+  try 
+  {
+    $fooController->dispatch('fail', $templateVewMock);
+    $t->fail('No code should be executed after calling non-existing actions');
+  }
+  catch (Sonata_Exception_Controller_Action $ex)
+  {
+    $t->pass('An exception is thrown for non-existing actions');
+  }
 
-$requestMock->getParameter('resource')->returns('article')->once();
-$requestMock->getParameter('format')->returns('xml')->once();
-$requestMock->replay();
+  try
+  {
+    $fooController->dispatch('myBar', $templateVewMock);
+    $t->pass('Existing methods are executed correctly');
+  }
+  catch (Sonata_Exception_Controller_Action $ex)
+  {
+    $t->fail('No exception should be thrown for existing methods');
+  }
 
-$varHolderMock->getAll()->returns(null)->once();
-$varHolderMock->replay();
+  try
+  {
+    $fooController->dispatch('myBaz', $templateVewMock);
+    $t->fail('No code should be executed after calling non-existing methods');
+  }
+  catch (Sonata_Exception_Controller_Action $ex)
+  {
+    $t->pass('An exception is thrown for non-existing methods');
+  }
 
-$templateVewMock->assign(null)->once();
-$templateVewMock->render('foo', 'article', 'xml')->once();
-$templateVewMock->replay();
+  // @Test: action returning Sonata_Controller_Action::ACTION_SUCCESS
 
-$fooController->dispatch('fooAction', $templateVewMock);
+  $requestMock->getParameter('resource')->returns('article')->once();
+  $requestMock->getParameter('format')->returns('xml')->once();
+  $requestMock->replay();
 
-$requestMock->verify();
-$varHolderMock->verify();
-$templateVewMock->verify();
+  $varHolderMock->getAll()->returns(null)->once();
+  $varHolderMock->replay();
 
-// @Test: ->dispatch() - action returning Sonata_Controller_Action::ACTION_FAILURE
+  $templateVewMock->assign(null)->once();
+  $templateVewMock->render('foo', 'article', 'xml')->once();
+  $templateVewMock->replay();
 
-$requestMock->getParameter('resource')->returns('article')->once();
-$requestMock->getParameter('format')->returns('xml')->once();
-$requestMock->replay();
+  $fooController->dispatch('fooAction', $templateVewMock);
 
-$varHolderMock->getAll()->returns(null)->once();
-$varHolderMock->replay();
+  $requestMock->verify();
+  $varHolderMock->verify();
+  $templateVewMock->verify();
 
-$templateVewMock->assign(null)->once();
-$templateVewMock->render('Error', null, 'xml')->once();
-$templateVewMock->replay();
+  // @Test: action returning Sonata_Controller_Action::ACTION_FAILURE
 
-$fooController->dispatch('barAction', $templateVewMock);
+  $requestMock->getParameter('resource')->returns('article')->once();
+  $requestMock->getParameter('format')->returns('xml')->once();
+  $requestMock->replay();
 
-$requestMock->verify();
-$varHolderMock->verify();
-$templateVewMock->verify();
+  $varHolderMock->getAll()->returns(null)->once();
+  $varHolderMock->replay();
+
+  $templateVewMock->assign(null)->once();
+  $templateVewMock->render('Error', null, 'xml')->once();
+  $templateVewMock->replay();
+
+  $fooController->dispatch('barAction', $templateVewMock);
+
+  $requestMock->verify();
+  $varHolderMock->verify();
+  $templateVewMock->verify();
  
 // @Test: ->setVar()
 
-$varHolderMock->set('foo', '0815')->once();
-$varHolderMock->replay();
+  $varHolderMock->set('foo', '0815')->once();
+  $varHolderMock->replay();
 
-$fooController->setVar('foo', '0815');
+  $fooController->setVar('foo', '0815');
 
-$varHolderMock->verify();
+  $varHolderMock->verify();
  
 // @Test: ->getVar()
 
-$varHolderMock->get('foo')->once();
-$varHolderMock->replay();
+  $varHolderMock->get('foo')->once();
+  $varHolderMock->replay();
 
-$fooController->getVar('foo');
+  $fooController->getVar('foo');
 
-$varHolderMock->verify();
+  $varHolderMock->verify();
  
 // @Test: ->__set()
 
-$varHolderMock->setByRef('foo', 42)->once();
-$varHolderMock->replay(); 
+  $varHolderMock->setByRef('foo', 42)->once();
+  $varHolderMock->replay(); 
 
-$fooController->foo = 42;
+  $fooController->foo = 42;
 
-$varHolderMock->verify();
+  $varHolderMock->verify();
  
 // @Test: ->__get()
 
-$varHolderMock->get('foo')->once();
-$varHolderMock->replay();
+  $varHolderMock->get('foo')->once();
+  $varHolderMock->replay();
 
-$foo = $fooController->foo;
+  $foo = $fooController->foo;
 
-$varHolderMock->verify();
+  $varHolderMock->verify();
  
 // @Test: ->__isset()
 
-$varHolderMock->has('foo')->once();
-$varHolderMock->replay();
+  $varHolderMock->has('foo')->once();
+  $varHolderMock->replay();
 
-$res = isset($fooController->foo);
+  $res = isset($fooController->foo);
 
-$varHolderMock->verify();
+  $varHolderMock->verify();
  
 // @Test: ->__unset()
  
-$varHolderMock->remove('bar')->once();
-$varHolderMock->replay();
+  $varHolderMock->remove('bar')->once();
+  $varHolderMock->replay();
 
-unset($fooController->bar);
+  unset($fooController->bar);
 
-$varHolderMock->verify();
+  $varHolderMock->verify();

@@ -69,7 +69,6 @@ abstract class Sonata_Controller_Action
    */
   public function __set($name, $value)
   {
-    echo "Hier";
     $this->varHolder->setByRef($name, $value);
   }
   

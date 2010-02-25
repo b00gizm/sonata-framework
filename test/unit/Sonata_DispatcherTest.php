@@ -13,164 +13,173 @@ $t = new LimeTest();
 
 // @BeforeAll
 
-$fh = fopen(dirname(__FILE__).'/../fixtures/controllers/ArticleController.class.php', 'wb');
-fputs($fh, '<?php class ArticleController extends Sonata_Controller_Action {} ?>');
-fclose($fh);
+  $fh = fopen(dirname(__FILE__).'/../fixtures/controllers/ArticleController.class.php', 'wb');
+  fputs($fh, '<?php class ArticleController extends Sonata_Controller_Action {} ?>');
+  fclose($fh);
 
-$fh = fopen(dirname(__FILE__).'/../fixtures/controllers/InvalidController.class.php', 'wb');
-fputs($fh, '<?php class InvalidController {} ?>');
-fclose($fh);
+  $fh = fopen(dirname(__FILE__).'/../fixtures/controllers/InvalidController.class.php', 'wb');
+  fputs($fh, '<?php class InvalidController {} ?>');
+  fclose($fh);
 
 // @Before
 
-$requestMock = $t->mock('Sonata_Request');
-$responseMock = $t->mock('Sonata_Response');
-$routeMapMock = $t->mock('Sonata_RouteMap');
-$templateViewMock = $t->mock('Sonata_TemplateView');
+  $requestMock = $t->mock('Sonata_Request');
+  $responseMock = $t->mock('Sonata_Response');
+  $routeMapMock = $t->mock('Sonata_RouteMap');
+  $templateViewMock = $t->mock('Sonata_TemplateView');
 
-$containerMock = $t->mock('sfServiceContainerInterface');
-$containerMock->getService('request')->returns($requestMock);
-$containerMock->getService('response')->returns($responseMock);
-$containerMock->getService('route_map')->returns($routeMapMock);
-$containerMock->getService('template_view')->returns($templateViewMock);
-$containerMock->replay();
+  $containerMock = $t->mock('sfServiceContainerInterface');
+  $containerMock->getService('request')->returns($requestMock);
+  $containerMock->getService('response')->returns($responseMock);
+  $containerMock->getService('route_map')->returns($routeMapMock);
+  $containerMock->getService('template_view')->returns($templateViewMock);
+  $containerMock->replay();
 
-$dispatcher = new Sonata_Dispatcher($containerMock);
+  $dispatcher = new Sonata_Dispatcher($containerMock);
+  
+// @After
+
+  unset($requestMock);
+  unset($responseMock);
+  unset($routeMapMock);
+  unset($templateViewMock);
+  unset($containerMock);
 
 // @AfterAll
 
-unlink(dirname(__FILE__).'/../fixtures/controllers/ArticleController.class.php');
-unlink(dirname(__FILE__).'/../fixtures/controllers/InvalidController.class.php');
+  unlink(dirname(__FILE__).'/../fixtures/controllers/ArticleController.class.php');
+  unlink(dirname(__FILE__).'/../fixtures/controllers/InvalidController.class.php');
 
 // @Test: ->getControllerClassName() - non-existing request parameter 'resource'
 
-$requestMock->getParameter('resource')->returns(null);
-$requestMock->replay();
+  $requestMock->getParameter('resource')->returns(null);
+  $requestMock->replay();
 
-$t->is($dispatcher->getControllerClassName($requestMock), null, 'Returns NULL for non-existing request parameter \'resource\'');
+  $t->is($dispatcher->getControllerClassName($requestMock), null, 'Returns NULL for non-existing request parameter \'resource\'');
 
 // @Test: ->getControllerClassName() - existing request parameter 'resource'
 
-$requestMock->getParameter('resource')->returns('article');
-$requestMock->replay();
+  $requestMock->getParameter('resource')->returns('article');
+  $requestMock->replay();
 
-$t->is($dispatcher->getControllerClassName($requestMock), 'ArticleController', 'Returns the correct controller name for existing request parameter \'resource\'');
+  $t->is($dispatcher->getControllerClassName($requestMock), 'ArticleController', 'Returns the correct controller name for existing request parameter \'resource\'');
 
-$requestMock->verify();
+  $requestMock->verify();
 
-// @Test ->loadControllerClass - non-existing controller class
+// @Test: ->loadControllerClass
 
-$dispatcher->setControllersDir(dirname(__FILE__).'/../fixtures/controllers');
+  // @Test: non-existing controller class
 
-try
-{
-  $dispatcher->loadControllerClass('NonExistingController');
-  $t->fail('No code should be executed after this');  
-}
-catch (Sonata_Exception_Dispatcher $ex)
-{
-  $t->pass('Throws an exception for non-existing controller classes');
-}
+  $dispatcher->setControllersDir(dirname(__FILE__).'/../fixtures/controllers');
 
-// @Test ->loadControllerClass - existing controller class
+  try
+  {
+    $dispatcher->loadControllerClass('NonExistingController');
+    $t->fail('No code should be executed after this');  
+  }
+  catch (Sonata_Exception_Dispatcher $ex)
+  {
+    $t->pass('Throws an exception for non-existing controller classes');
+  }
 
-$dispatcher->setControllersDir(dirname(__FILE__).'/../fixtures/controllers');
+  // @Test: existing controller class
 
-try
-{
-  $dispatcher->loadControllerClass('ArticleController');
-  $t->is(class_exists('ArticleController'), true, 'The controller class was loaded correctly');  
-}
-catch (Sonata_Exception_Dispatcher $ex)
-{
-  $t->pass('Throws an exception for non-existing controller classes');
-}
+  $dispatcher->setControllersDir(dirname(__FILE__).'/../fixtures/controllers');
 
-// @Test: ->dispatch() - simulating a route string that cannot be resolved
+  try
+  {
+    $dispatcher->loadControllerClass('ArticleController');
+    $t->is(class_exists('ArticleController'), true, 'The controller class was loaded correctly');  
+  }
+  catch (Sonata_Exception_Dispatcher $ex)
+  {
+    $t->pass('Throws an exception for non-existing controller classes');
+  }
 
-$requestMock->getParameter('format')->returns('xml');
-$requestMock->getParameter('route')->returns('foo/bar.xml');
-$requestMock->replay();
+  // @Test: simulating a route string that cannot be resolved
 
-$routeMapMock->resolveRouteString('foo/bar.xml')->returns(false);
-$routeMapMock->replay();
+  $requestMock->getParameter('format')->returns('xml');
+  $requestMock->getParameter('route')->returns('foo/bar.xml');
+  $requestMock->replay();
 
-$templateViewMock->assign('code', 500)->once();
-$templateViewMock->assign('message', 'Could not resolve route \'foo/bar.xml\'. Please check your routing configuration')->once();
-$templateViewMock->render('Error', null, 'xml')->once();
-$templateViewMock->replay();
+  $routeMapMock->resolveRouteString('foo/bar.xml')->returns(false);
+  $routeMapMock->replay();
 
-$dispatcher->dispatch();
+  $templateViewMock->assign('code', 500)->once();
+  $templateViewMock->assign('message', 'Could not resolve route \'foo/bar.xml\'. Please check your routing configuration')->once();
+  $templateViewMock->render('Error', null, 'xml')->once();
+  $templateViewMock->replay();
 
-$containerMock->verify();
-$routeMapMock->verify();
-$routeMapMock->verify();
-$templateViewMock->verify();
+  $dispatcher->dispatch();
 
-// @Test: ->dispatch() - simulating non-existing controller class
+  $containerMock->verify();
+  $routeMapMock->verify();
+  $routeMapMock->verify();
+  $templateViewMock->verify();
 
-$dispatcher->setControllersDir(dirname(__FILE__).'/../fixtures/controllers');
+  // @Test: simulating non-existing controller class
 
-$requestMock->getParameter('format')->returns('xml');
-$requestMock->getParameter('route')->returns('foo/bar.xml');
-$requestMock->getParameter('resource')->returns('non_existing');
-$requestMock->replay();
+  $dispatcher->setControllersDir(dirname(__FILE__).'/../fixtures/controllers');
 
-$routeMapMock->resolveRouteString('foo/bar.xml')->returns(true);
-$routeMapMock->replay();
+  $requestMock->getParameter('format')->returns('xml');
+  $requestMock->getParameter('route')->returns('foo/bar.xml');
+  $requestMock->getParameter('resource')->returns('non_existing');
+  $requestMock->replay();
 
-$templateViewMock->assign('code', 500)->once();
-$templateViewMock->assign('message', sprintf("Could not load controller class '%s' in directory '%s'", 'NonExistingController', (dirname(__FILE__).'/../fixtures/controllers')))->once();
-$templateViewMock->render('Error', null, 'xml')->once();
-$templateViewMock->replay();
+  $routeMapMock->resolveRouteString('foo/bar.xml')->returns(true);
+  $routeMapMock->replay();
 
-$dispatcher->dispatch();
+  $templateViewMock->assign('code', 500)->once();
+  $templateViewMock->assign('message', sprintf("Could not load controller class '%s' in directory '%s'", 'NonExistingController', (dirname(__FILE__).'/../fixtures/controllers')))->once();
+  $templateViewMock->render('Error', null, 'xml')->once();
+  $templateViewMock->replay();
 
-$containerMock->verify();
-$routeMapMock->verify();
-$routeMapMock->verify();
-$templateViewMock->verify();
+  $dispatcher->dispatch();
 
-// @Test: ->dispatch() - simulating an invalid controller class
+  $containerMock->verify();
+  $routeMapMock->verify();
+  $routeMapMock->verify();
+  $templateViewMock->verify();
 
-$dispatcher->setControllersDir(dirname(__FILE__).'/../fixtures/controllers');
+  // @Test: simulating an invalid controller class
 
-$requestMock->getParameter('format')->returns('xml');
-$requestMock->getParameter('route')->returns('foo/bar.xml');
-$requestMock->getParameter('resource')->returns('invalid');
-$requestMock->replay();
+  $dispatcher->setControllersDir(dirname(__FILE__).'/../fixtures/controllers');
 
-$routeMapMock->resolveRouteString('foo/bar.xml')->returns(true);
-$routeMapMock->replay();
+  $requestMock->getParameter('format')->returns('xml');
+  $requestMock->getParameter('route')->returns('foo/bar.xml');
+  $requestMock->getParameter('resource')->returns('invalid');
+  $requestMock->replay();
 
-$templateViewMock->assign('code', 500)->once();
-$templateViewMock->assign('message', sprintf("Controller '%s' is not an instance of Sonata_Controller_Action", 'InvalidController'))->once();
-$templateViewMock->render('Error', null, 'xml')->once();
-$templateViewMock->replay();
+  $routeMapMock->resolveRouteString('foo/bar.xml')->returns(true);
+  $routeMapMock->replay();
 
-$dispatcher->dispatch();
+  $templateViewMock->assign('code', 500)->once();
+  $templateViewMock->assign('message', sprintf("Controller '%s' is not an instance of Sonata_Controller_Action", 'InvalidController'))->once();
+  $templateViewMock->render('Error', null, 'xml')->once();
+  $templateViewMock->replay();
 
-$containerMock->verify();
-$routeMapMock->verify();
-$routeMapMock->verify();
-$templateViewMock->verify();
+  $dispatcher->dispatch();
 
-// @Test: ->dispatch() - simulating a valid controller class
+  $containerMock->verify();
+  $routeMapMock->verify();
+  $routeMapMock->verify();
+  $templateViewMock->verify();
 
-$dispatcher->setControllersDir(dirname(__FILE__).'/../fixtures/controllers');
+  // @Test: simulating a valid controller class
 
-$requestMock->getParameter('format')->returns('xml');
-$requestMock->getParameter('route')->returns('foo/bar.xml');
-$requestMock->getParameter('resource')->returns('invalid');
-$requestMock->getParameter('action')->returns('foo')->once();
-$requestMock->replay();
+  $dispatcher->setControllersDir(dirname(__FILE__).'/../fixtures/controllers');
 
-$routeMapMock->resolveRouteString('foo/bar.xml')->returns(true);
-$routeMapMock->replay();
+  $requestMock->getParameter('format')->returns('xml');
+  $requestMock->getParameter('route')->returns('foo/bar.xml');
+  $requestMock->getParameter('resource')->returns('invalid');
+  $requestMock->getParameter('action')->returns('foo')->once();
+  $requestMock->replay();
 
-$dispatcher->dispatch();
+  $routeMapMock->resolveRouteString('foo/bar.xml')->returns(true);
+  $routeMapMock->replay();
 
-$containerMock->verify();
-$routeMapMock->verify();
-$routeMapMock->verify();
+  $dispatcher->dispatch();
 
+  $containerMock->verify();
+  $routeMapMock->verify();
+  $routeMapMock->verify();
