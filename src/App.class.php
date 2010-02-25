@@ -116,17 +116,16 @@ abstract class Sonata_App
     $templateView = $this->container->getService('template_view'); 
     
     $appDir = $this->registerAppDir();
-    $paths = $this->registerPaths();
     
     $this->registerRoutes($routeMap);
     
     $this->initializePreFilterChain()->processFilters($request, $response); 
     
-    $dispatcher = $this->createDispatcher();
-    $dispatcher->setControllersDir(isset($paths['controllers']) ? $paths['controllers'] : '');
+    $templateView->setDir(isset($this->paths['templates']) ? $this->paths['templates'] : '');
     
-    $templateView->setDir(isset($paths['templates']) ? $paths['templates'] : '');
-    $this->createDispatcher()->dispatch();
+    $dispatcher = $this->createDispatcher();
+    $dispatcher->setControllersDir(isset($this->paths['controllers']) ? $this->paths['controllers'] : '');
+    $dispatcher->dispatch();
     
     $this->initializePostFilterChain()->processFilters($request, $response); 
     
