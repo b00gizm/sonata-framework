@@ -49,7 +49,7 @@ Doing it the Sonata way is as easy as ...
       protected function showAction()
       {
         // Access request (and response) from within the action
-        $id = $request = $this->getRequest()->getParameter('id');
+        $id = $this->getRequest()->getParameter('id');
         
         // Fetch the article data from a DB, 
         // e.g. by using the Doctrine ORM (http://www.doctrine-project.org)
