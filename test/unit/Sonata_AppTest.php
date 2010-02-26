@@ -19,10 +19,6 @@ $t = new LimeTest(11);
   
     protected $dispatcherMock = null;
   
-    protected $preFilterChainMock = null;
-  
-    protected $postFilterChainMock = null;
-  
     public function __construct(sfContainerInterface $containerMock, $environment = 'prod', $isDebug = false)
     {
       $this->containerMock = $containerMock;
@@ -33,35 +29,15 @@ $t = new LimeTest(11);
     {
       $this->dispatcherMock = $dispatcherMock;
     }
-  
-    public function setPreFilterChainMock(Sonata_FilterChain $filterChainMock)
-    {
-      $this->preFilterChainMock = $filterChainMock;
-    }
-  
-    public function setPostFilterChainMock(Sonata_FilterChain $filterChainMock)
-    {
-      $this->postFilterChainMock = $filterChainMock;
-    }
-  
-    protected function initializeContainer()
-    {
-      return $this->containerMock;
-    }
-  
-    protected function initializePreFilterChain()
-    {
-      return $this->preFilterChainMock;
-    }
-  
+    
     protected function createDispatcher()
     {
       return $this->dispatcherMock;
     }
   
-    protected function initializePostFilterChain()
+    protected function initializeContainer()
     {
-      return $this->postFilterChainMock;
+      return $this->containerMock;
     }
     
     public function registerAppDir() 
@@ -86,10 +62,12 @@ $t = new LimeTest(11);
 
     public function registerPreFilters() 
     {
+      return array();
     }
 
     public function registerPostFilters() 
     {
+      return array();
     }
   }
 
@@ -97,13 +75,9 @@ $t = new LimeTest(11);
 
   $containerMock = $t->mock('sfContainerInterface');
   $dispatcherMock = $t->mock('Sonata_Dispatcher');
-  $preFilterChainMock = $t->mock('Sonata_FilterChain');
-  $postFilterChainMock = $t->mock('Sonata_FilterChain');
 
   $app = new SonataAppHelper($containerMock);
   $app->setDispatcherMock($dispatcherMock);
-  $app->setPreFilterChainMock($preFilterChainMock);
-  $app->setPostFilterChainMock($postFilterChainMock);
 
 // @After
 
@@ -126,15 +100,11 @@ $t = new LimeTest(11);
   $containerMock->getService('template_view')->returns($templateViewMock)->once();
   $containerMock->replay();
   
-  $preFilterChainMock->processFilters($requestMock, $responseMock)->once();
-  $preFilterChainMock->replay();
-  
   $dispatcherMock->setControllersDir(dirname(__FILE__).'/../controllers')->once();
+  $dispatcherMock->addPreFilters(array())->once();
+  $dispatcherMock->addPostFilters(array())->once();
   $dispatcherMock->dispatch()->once();
   $dispatcherMock->replay();
-  
-  $postFilterChainMock->processFilters($requestMock, $responseMock)->once();
-  $postFilterChainMock->replay();
   
   $app->run();
   
@@ -147,7 +117,5 @@ $t = new LimeTest(11);
   ), 'The paths were set correctly');
   
   $containerMock->verify();
-  $preFilterChainMock->verify();
   $dispatcherMock->verify();
-  $postFilterChainMock->verify();
   

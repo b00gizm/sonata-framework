@@ -13,6 +13,30 @@ $t = new LimeTest();
 
 // @BeforeAll
 
+  class DispatcherHelper extends Sonata_Dispatcher
+  {
+    protected $preFilterChainMock = null;
+  
+    protected $postFilterChainMock = null;
+    
+    public function __construct(sfServiceContainerInterface $container, Sonata_FilterChain $preFilterChainMock, Sonata_FilterChain $postFilterChainMock)
+    {
+      $this->preFilterChainMock = $preFilterChainMock;
+      $this->postFilterChainMock = $postFilterChainMock;
+      parent::__construct($container);
+    }
+    
+    protected function initializePreFilterChain()
+    {
+      return $this->preFilterChainMock;
+    }
+  
+    protected function initializePostFilterChain()
+    {
+      return $this->postFilterChainMock;
+    }
+  }
+
   $fh = fopen(dirname(__FILE__).'/../fixtures/controllers/ArticleController.class.php', 'wb');
   fputs($fh, '<?php class ArticleController extends Sonata_Controller_Action {} ?>');
   fclose($fh);
@@ -27,6 +51,9 @@ $t = new LimeTest();
   $responseMock = $t->mock('Sonata_Response');
   $routeMapMock = $t->mock('Sonata_RouteMap');
   $templateViewMock = $t->mock('Sonata_TemplateView');
+  
+  $preFilterChainMock = $t->mock('Sonata_FilterChain');
+  $postFilterChainMock = $t->mock('Sonata_FilterChain');
 
   $containerMock = $t->mock('sfServiceContainerInterface');
   $containerMock->getService('request')->returns($requestMock);
@@ -35,7 +62,7 @@ $t = new LimeTest();
   $containerMock->getService('template_view')->returns($templateViewMock);
   $containerMock->replay();
 
-  $dispatcher = new Sonata_Dispatcher($containerMock);
+  $dispatcher = new DispatcherHelper($containerMock, $preFilterChainMock, $postFilterChainMock);
   
 // @After
 
@@ -49,6 +76,86 @@ $t = new LimeTest();
 
   unlink(dirname(__FILE__).'/../fixtures/controllers/ArticleController.class.php');
   unlink(dirname(__FILE__).'/../fixtures/controllers/InvalidController.class.php');
+  
+// @Test: ->addPreFilters()
+
+  // @Test: argument: null
+  
+  $preFilterChainMock->addFilters()->never();
+  $preFilterChainMock->replay();
+  
+  $dispatcher->addPreFilters(null);
+  
+  $preFilterChainMock->verify();
+  
+  // @Test: argument: array()
+  $preFilterChainMock->addFilters()->never();
+  $preFilterChainMock->replay();
+  
+  $dispatcher->addPreFilters(array());
+  
+  $preFilterChainMock->verify();
+  
+  // @Test: argument: invalid input
+  
+  $preFilterChainMock->addFilters()->never();
+  $preFilterChainMock->replay();
+  
+  $dispatcher->addPreFilters("This won't do");
+  
+  $preFilterChainMock->verify();
+  
+  // @Test: argument: array of (mocked) filters
+  $filterMock = $t->mock('Sonata_Filter');
+  $arg = array($filterMock, $filterMock, $filterMock);
+  
+  $preFilterChainMock->addFilter($filterMock)->times(3);
+  $preFilterChainMock->replay();
+  
+  $dispatcher->addPreFilters($arg);
+  
+  $preFilterChainMock->verify();
+  
+// @Test: ->addPostFilters()
+    
+  // @Test: argument: null
+  
+  $postFilterChainMock->addFilters()->never();
+  $postFilterChainMock->replay();
+  
+  $dispatcher->addPostFilters(null);
+  
+  $postFilterChainMock->verify();
+  
+  // @Test: argument: array()
+  
+  $postFilterChainMock->addFilters()->never();
+  $postFilterChainMock->replay();
+  
+  $dispatcher->addPostFilters(array());
+  
+  $postFilterChainMock->verify();
+  
+  // @Test: argument: invalid input
+  
+  $postFilterChainMock->addFilters()->never();
+  $postFilterChainMock->replay();
+  
+  $dispatcher->addPostFilters("This won't do");
+  
+  $postFilterChainMock->verify();
+  
+  // @Test: argument: array of (mocked) filters
+  
+  $filterMock = $t->mock('Sonata_Filter');
+  $arg = array($filterMock, $filterMock, $filterMock);
+  
+  $postFilterChainMock->addFilter($filterMock)->times(3);
+  $postFilterChainMock->replay();
+  
+  $dispatcher->addPostFilters($arg);
+  
+  $postFilterChainMock->verify();
 
 // @Test: ->getControllerClassName() - non-existing request parameter 'resource'
 
@@ -95,6 +202,8 @@ $t = new LimeTest();
   {
     $t->pass('Throws an exception for non-existing controller classes');
   }
+  
+// @Test: ->dispatch()
 
   // @Test: simulating a route string that cannot be resolved
 
@@ -186,20 +295,28 @@ $t = new LimeTest();
 
   $requestMock->getParameter('format')->returns('xml');
   $requestMock->getParameter('route')->returns('foo/bar.xml');
-  $requestMock->getParameter('resource')->returns('invalid');
-  $requestMock->getParameter('action')->returns('foo')->once();
+  $requestMock->getParameter('resource')->returns('mock');
+  $requestMock->getParameter('action', 'list')->returns('foo')->once();
   $requestMock->replay();
 
   $routeMapMock->resolveRouteString('foo/bar.xml')->returns(true);
   $routeMapMock->replay();
+  
+  $preFilterChainMock->processFilters($requestMock, $responseMock)->once();
+  $preFilterChainMock->replay();
+  
+  $postFilterChainMock->processFilters($requestMock, $responseMock)->once();
+  $postFilterChainMock->replay();
 
-  $responseMock->any('appendToBody')->never();
+  $responseMock->appendToBody()->never();
   $responseMock->flush()->once();
-  //$responseMock->replay();
+  $responseMock->replay();
 
   $dispatcher->dispatch();
 
   $containerMock->verify();
   $routeMapMock->verify();
   $routeMapMock->verify();
-  //$responseMock->verify();
+  $preFilterChainMock->verify();
+  $postFilterChainMock->verify();
+  $responseMock->verify();

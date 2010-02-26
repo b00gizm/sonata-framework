@@ -52,36 +52,6 @@ abstract class Sonata_App
     return $container;
   }
   
-  protected function initializePreFilterChain()
-  {
-    $preFilterChain = new Sonata_FilterChain();
-    $preFilters = $this->registerPreFilters();
-    if (is_array($preFilters) && !empty($preFilters))
-    {
-      foreach ($preFilters as $filter)
-      {
-        $preFilterChain->addFilter($filter);
-      }
-    }
-    
-    return $preFilterChain;
-  }
-  
-  protected function initializePostFilterChain()
-  {
-    $postFilterChain = new Sonata_FilterChain();
-    $postFilters = $this->registerPostFilters();
-    if (is_array($postFilters) && !empty($postFilters))
-    {
-      foreach ($postFilters as $filter)
-      {
-        $postFilterChain->addFilter($filter);
-      }
-    }
-    
-    return $postFilterChain;
-  }
-  
   protected function createDispatcher()
   {
     return new Sonata_Dispatcher($this->container);
@@ -102,9 +72,15 @@ abstract class Sonata_App
   
   public function registerRoutes(Sonata_RouteMap $map) {}
   
-  public function registerPreFilters() {}
+  public function registerPreFilters() 
+  {
+    return array();
+  }
   
-  public function registerPostFilters() {}
+  public function registerPostFilters() 
+  {
+    return array();
+  }
   
   public function run()
   {
@@ -119,15 +95,13 @@ abstract class Sonata_App
     
     $this->registerRoutes($routeMap);
     
-    $this->initializePreFilterChain()->processFilters($request, $response); 
-    
     $templateView->setDir(isset($this->paths['templates']) ? $this->paths['templates'] : '');
     
     $dispatcher = $this->createDispatcher();
     $dispatcher->setControllersDir(isset($this->paths['controllers']) ? $this->paths['controllers'] : '');
+    $dispatcher->addPreFilters($this->registerPreFilters());
+    $dispatcher->addPostFilters($this->registerPostFilters());
     $dispatcher->dispatch();
-    
-    $this->initializePostFilterChain()->processFilters($request, $response); 
     
     $end = microtime();
     $duration = ($this->getMicrotime($end) - $this->getMicrotime($start));

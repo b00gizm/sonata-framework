@@ -15,9 +15,16 @@ class Sonata_Dispatcher
 {
   protected $container = null;
   
+  protected $preFilterChain = null;
+  
+  protected $postFilterChain = null;
+  
   public function __construct(sfServiceContainerInterface $container)
   {
     $this->container = $container;
+    
+    $this->preFilterChain = $this->initializePreFilterChain();
+    $this->postFilterChain = $this->initializePostFilterChain();
   }
   
   public function setControllersDir($directory)
@@ -29,6 +36,50 @@ class Sonata_Dispatcher
   {
     return $this->controllersDir;
   }
+  
+  protected function initializePreFilterChain()
+  {
+    return new Sonata_FilterChain();
+  }
+  
+  protected function initializePostFilterChain()
+  {
+    return new Sonata_FilterChain();
+  }
+  
+  public function addPreFilters($filters)
+  {
+    $this->addFilters($filters, 'pre');
+  }
+  
+  public function addPostFilters($filters)
+  {
+    $this->addFilters($filters, 'post');
+  }
+  
+  protected function addFilters($filters, $type)
+  {
+    if (is_null($filters) || empty($filters))
+    {
+      return;
+    }
+    
+    $filters = is_array($filters) ? $filters : array();
+    foreach ($filters as $filter)
+    {
+      $type = strtolower($type);
+      if ($type == 'pre')
+      {
+        $this->preFilterChain->addFilter($filter);
+      }
+      elseif ($type == 'post')
+      {
+        $this->postFilterChain->addFilter($filter);
+      }
+    }
+    
+    return;
+  } 
   
   public function dispatch()
   {
@@ -63,11 +114,17 @@ class Sonata_Dispatcher
 
       // Retrieve action name. If no action name was given, switch to 'list' action
       $action = $request->getParameter('action', 'list');
+      
+      // Process all pre filters
+      $this->preFilterChain->processFilters($request, $response);
 
       // Dispatch the action
       $controller->dispatch($action.'Action', $templateView);
+      
+      // Process all post filters
+      $this->postFilterChain->processFilters($request, $response);
     }
-    catch (Sonata_Exception_Dispatcher $ex)
+    catch (Sonata_Exception $ex)
     {
       $templateView->assign('code', $ex->getCode());
       $templateView->assign('message', $ex->getMessage());
