@@ -14,7 +14,14 @@ Wouldn't it be great to have a stripped-down mini framework for building RESTful
 
 ## Introducing Sonata.
 
-Sonata is a lightweight framework for building RESTful webservices in PHP >= 5.2.4. Sonata was mainly inspired by the concepts of the [Symfony Project](http://www.symfony-project.org) and [Ruby On Rails](http://rubyonrails.org). It also uses Symfony components like the [sfYaml library](http://components.symfony-project.org/yaml/) by [Fabien Potentcier](http://github.com/fabpot) and the [Lime2 testing framework](http://trac.symfony-project.org/browser/tools/lime) by [Bernhard Schussek](http://github.com/bschussek).
+Sonata is a lightweight framework for building RESTful webservices in PHP >= 5.2.4. Sonata was mainly inspired by the concepts of the [symfony 1.x](http://www.symfony-project.org) and [Ruby On Rails](http://rubyonrails.org). It's fast, RESTful by design and is build with / on top of some great open source PHP projects like
+
+* [symfony Dependency Injection](http://components.symfony-project.org/dependency-injection/)
+* [symfony YAML](http://components.symfony-project.org/yaml/)
+* [Lime2 Testing Framework](http://github.com/bschussek/lime)
+* [Phing Build Tool](http://phing.info/trac/)
+
+
 
 ## Sonata at a glance.
 
@@ -39,11 +46,14 @@ Doing it the Sonata way is as easy as ...
     
     class ArticleController extends Sonata_Controller_Action
     {
-      protected function showAction(Sonata_Request $request Sonata_Response $response)
+      protected function showAction()
       {
+        // Access request (and response) from within the action
+        $id = $this->getRequest()->getParameter('id');
+        
         // Fetch the article data from a DB, 
         // e.g. by using the Doctrine ORM (http://www.doctrine-project.org)
-        $article = Doctrine::getTable('Article')->find($request->getParameter('id'))
+        $article = Doctrine::getTable('Article')->find($id);
         
         $this->article = $article;
       }
@@ -52,12 +62,12 @@ Doing it the Sonata way is as easy as ...
 
 and 3.
 
-    <!-- in templates/article/ShowSuccess.xml.php -->
+    <!-- in templates/article/showSuccess.xml.php -->
     
     <?php echo '<?' ?>xml version="1.0" encoding="utf-8" ?>
     <rsp stat="ok">
       <articles>
-        <article id="<?php echo $article->getId() ?>">
+        <article id="<?php echo $article->id ?>">
           <title><?php echo $article->title ?></title>
           <body><?php echo $article->body ?></body>
           <created_at><?php echo $article->created_at ?></created_at>
