@@ -16,6 +16,8 @@ abstract class Sonata_App
   
   protected $isDebug = false;
   
+  protected $appDir = null;
+  
   protected $paths = array();
   
   protected $container = null;
@@ -25,7 +27,7 @@ abstract class Sonata_App
     $name = 'SonataProject_'.md5($this->appDir.$this->isDebug.$this->environment).'ServiceContainer';
     $file = sys_get_temp_dir().'/'.$name.'.php';
     
-    if (!$isDebug && is_readable($file))
+    if (!$this->isDebug && is_readable($file))
     {
       require_once $file;
       $container = new $name;
@@ -42,7 +44,7 @@ abstract class Sonata_App
       $loader = new sfServiceContainerLoaderFileYaml($container);
       $loader->load($serviceConfig);
       
-      if (!$isDebug)
+      if (!$this->isDebug)
       {
         $dumper = new sfServiceContainerDumperPhp($container);
         file_put_contents($file, $dumper->dump(array('class' => $name)));
@@ -62,6 +64,7 @@ abstract class Sonata_App
     $this->environment = $environment;
     $this->isDebug = (bool)$isDebug;
     
+    $this->appDir = $this->registerAppDir();
     $this->paths = $this->registerPaths();
     $this->container = $this->initializeContainer();
   }

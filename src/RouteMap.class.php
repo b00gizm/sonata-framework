@@ -181,7 +181,7 @@ class Sonata_RouteMap
   {
     $matches = array();
     $pattern = '/:([A-Za-z0-9-_]+)/';
-    preg_match_all($pattern, $route, &$matches);
+    preg_match_all($pattern, $route, $matches);
     
     $routePattern = preg_replace($pattern, '([A-Za-z0-9-_]+)', $route);
     $routePattern = preg_replace('/\//', '\/', $routePattern);
@@ -266,7 +266,7 @@ class Sonata_RouteMap
     { 
       $matches = array();
 
-      $res = preg_match_all($route->getPattern(), '/'.$routeString, &$matches);
+      $res = preg_match_all($route->getPattern(), '/'.$routeString, $matches);
       
       $verbs = $route->getVerbs();
       if ($res !== false && $res > 0 && (empty($verbs) || in_array($this->request->getMethod(), $verbs)))
