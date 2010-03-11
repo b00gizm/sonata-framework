@@ -40,9 +40,10 @@ class Sonata_Autoloader
   public function autoload($class)
   {    
     $parts = explode('_', $class);
+    $last = array_pop($parts);
     array_shift($parts);
     
-    $path = dirname(__FILE__).'/'.implode('/', $parts).'.class.php';
+    $path = dirname(__FILE__).'/'.strtolower(implode('/', $parts)).'/'.$last.'.class.php';
     if (strpos($class, 'Sonata') === 0 && is_readable($path))
     {
       require_once $path;
