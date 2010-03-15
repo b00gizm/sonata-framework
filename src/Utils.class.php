@@ -59,7 +59,7 @@ class Sonata_Utils
     $string = preg_replace('~[^\\pL\d]+~u', '', $string);
     
     $matches = array();
-    if (preg_match_all('/[A-Z][a-z0-9]*/', $string, &$matches))
+    if (preg_match_all('/[A-Z][a-z0-9]*/', $string, $matches))
     {
       $parts = $matches[0];
       $cnt = 0;
@@ -72,7 +72,7 @@ class Sonata_Utils
       $offset = strlen($string) - $cnt;
       if ($offset > 0)
       {
-        array_unshift(&$parts, substr($string, 0, $offset));
+        array_unshift($parts, substr($string, 0, $offset));
       }
       
       return implode('_', $parts);

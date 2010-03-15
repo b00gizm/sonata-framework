@@ -157,7 +157,7 @@ class Sonata_ParameterHolder implements Serializable
     
     foreach ($parameters as $name => &$value)
     {
-      $this->setByRef($name, &$value);
+      $this->setByRef($name, $value);
     }
   }
   
@@ -181,4 +181,3 @@ class Sonata_ParameterHolder implements Serializable
     $this->parameters = unserialize($serialized);
   }
 }
-
