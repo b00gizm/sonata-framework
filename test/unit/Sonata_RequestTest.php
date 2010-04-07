@@ -51,3 +51,11 @@ $t = new LimeTest();
 
   $_SERVER['REQUEST_METHOD'] = 'GET';
   $t->is($req->isMethod('GET'), true, 'Returns true for the correctly requested HTTP method');
+
+// @Test: ->getHttpHeader()
+
+  $_SERVER['HTTP_USER_AGENT'] = 'MyTestUserAgent/1.0';
+  $t->is($req->getHttpHeader('User-Agent'), 'MyTestUserAgent/1.0', 'The user agent header field\'s value was retrieved correctly');
+  
+  $_SERVER['HTTP_ACCEPT_CHARSET'] = 'utf-8';
+  $t->is($req->getHttpHeader('Accept-Charset'), 'utf-8', 'The accepted charset header field\'s value was retrieved correctly');
