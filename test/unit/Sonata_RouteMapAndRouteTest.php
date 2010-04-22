@@ -131,6 +131,23 @@ unset($rm);
   $t->is($route->getAction(), 'destroy', 'The action was set correctly');
   $t->is($route->getParameters(), array('id', 'format'), 'The parameters were set correctly');
   $t->is($route->getCommandName(), 'DestroyAlbum', 'The camelized command name is generated correctly');
+  
+// @Test: ->resources() - with path prefix (static)
+
+  $rm->resources('postings', null, '/blog');
+  
+  $routes = $rm->getRoutes();
+  $route = $routes[0];
+  $t->is($route->getPattern(), '/^\/blog\/postings\.([A-Za-z0-9-_]+)/', 'The pattern has the right form further regex operations');
+  
+// @Test: ->resources() - with path prefix (dynamic)
+
+  $rm->resources('photos', null, '/agencies/:agency_id');
+  
+  $routes = $rm->getRoutes();
+  $route = $routes[0];
+  $t->is($route->getPattern(), '/^\/agencies\/([A-Za-z0-9-_]+)\/photos\.([A-Za-z0-9-_]+)/', 'The pattern has the right form further regex operations');
+  $t->is($route->getParameters(), array('agency_id', 'format'), 'The parameters were set correctly');
 
 // @Test: ->nestedResources()
 
@@ -242,6 +259,22 @@ unset($rm);
   $t->is($rm->resolveRouteString('albums/123/images.xml'), false, '\'albums/123/images.xml\' cannot be resolved');
   
   $requestStub->verify();
+  
+  // @Test: trying to resolve a route string for a resource with path prefix
+  
+  // fixtures
+  $rm->resources('postings', null, '/blog');
+  $rm->resources('photos', null, '/agencies/:agency_id');
+  $rm->resources('items', null, '/:item_type');
+  
+  $requestStub->getMethod()->returns('GET');
+  $requestStub->replay();
+  
+  $t->is($rm->resolveRouteString('blog/postings.xml'), true, '\'blog/postings.xml\' is resolved correctly');
+  $t->is($rm->resolveRouteString('agencies/123/photos/456.xml'), true, '\'agencies/123/photos/456.xml\' is resolved correctly');
+  $t->is($rm->resolveRouteString('cool/items/123.xml'), true, '\'cool/items/123.xml\' is resolved correctly');
+  
+  $requestStub->verify();
 
 // @Test: ->load() - Load from config
 
@@ -253,9 +286,24 @@ unset($rm);
       'resources_example' => array(
         'resources'  => 'articles',
       ),
+      
+      'resources_example_ext' => array(
+        'resources'  => array(
+          'plurals'     => 'teeth',
+          'singulars'   => 'tooth',
+          'path_prefix' => '/my',
+        ),
+      ),
     
       'nested_resources_example' => array(
         'resources'  => array('comments', 'articles'),
+      ),
+      
+      'nested_resources_example_ext' => array(
+        'resources'  => array(
+          'plurals'   => array('teeth', 'children'),
+          'singulars' => array('tooth', 'child'),
+        ),
       ),
     
       'connect_example' => array(
@@ -271,4 +319,14 @@ unset($rm);
   $configParserStub->replay();
 
   $rm->load($configPath, $configParserStub);
-  $t->is(count($rm->getRoutes()), 11, 'All 11 routes were connected (added) to the routes array');
+  $t->is(count($rm->getRoutes()), 21, 'All 21 routes were connected (added) to the routes array');
+  
+  $requestStub->getMethod()->returns('GET');
+  $requestStub->replay();
+  
+  $t->is($rm->resolveRouteString('articles/123.xml'), true, '\'articles/123.xml\' is resolved correctly');
+  $t->is($rm->resolveRouteString('my/teeth/456.xml'), true, '\'my/teeth/456.xml\' is resolved correctly');
+  $t->is($rm->resolveRouteString('articles/123/comments/456.xml'), true, '\'articles/123/comments/456.xml\' is resolved correctly');
+  $t->is($rm->resolveRouteString('children/123/teeth/456.xml'), true, '\'children/123/teeth/456.xml\' is resolved correctly');
+  
+  $requestStub->verify();

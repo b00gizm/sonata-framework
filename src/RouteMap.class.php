@@ -37,9 +37,6 @@ class Sonata_RouteMap
    * The (protected) constructor
    *
    * @param Sonata_Request $request The HTTP request object
-   * @param array $options Optional parameters for the route map:
-   *                        * use_config  - Whether to use config file for route mappings
-   *                        * config_file - Path of the route mapping config file
    */
   public function __construct(Sonata_Request $request)
   {
@@ -89,7 +86,6 @@ class Sonata_RouteMap
                 break;
                 
               case 'resources' :
-                // TODO: Support for resources with irregular singulars/plurals
                 $resources = $mapping['resources'];
                 if (is_string($resources))
                 {
@@ -97,7 +93,48 @@ class Sonata_RouteMap
                 }
                 elseif (is_array($resources))
                 {
-                  if (count($resources) >= 2)
+                  $keys = array_keys($resources);
+                  if (in_array('plurals', $keys, true))
+                  {
+                    $plural = $resources['plurals'];
+                    if (is_string($plural))
+                    {
+                      // Default resources
+                      $singular = null;
+                      if (isset($resources['singulars']) && is_string($resources['singulars']))
+                      {
+                        $singular = $resources['singulars'];
+                      }
+                      
+                      $pathPrefix = '';
+                      if (isset($resources['path_prefix']) && is_string($resources['path_prefix']))
+                      {
+                        $pathPrefix = $resources['path_prefix'];
+                      }
+                      
+                      $this->resources($plural, $singular, $pathPrefix);
+                    }
+                    else
+                    {
+                      // Nested resources
+                      if (count($resources['plurals']) >= 2)
+                      {
+                        $nestedResources = $resources['plurals'][0];
+                        $parentResources = $resources['plurals'][1];
+                        if (is_string($nestedResources) && is_string($parentResources))
+                        {
+                          $singulars = array();
+                          if (isset($resources['singulars']) && is_array($resources['singulars']) && count($resources['singulars']) >= 2)
+                          {
+                            $singulars = $resources['singulars'];
+                          }
+                          
+                          $this->nestedResources($nestedResources, $parentResources, $singulars);
+                        }
+                      }
+                    }
+                  }
+                  elseif (count($resources) >= 2)
                   {
                     $nestedResources = $resources[0];
                     $parentResources = $resources[1];
@@ -208,16 +245,17 @@ class Sonata_RouteMap
    *
    * @param string $resources The resource as plural, i.e. articles
    * @param string $singular The resource's singular form if unregular, i.e. teeth => tooth
+   * @param string $pathPrefix A prefix to be used for all routes of this resource
    */
-  public function resources($resources, $singular = null)
+  public function resources($resources, $singular = null, $pathPrefix = '')
   {
     $resource = (is_null($singular) || !is_string($singular)) ? substr($resources, 0, strlen($resources)-1) : $singular;
     
-    $this->connect('/'.$resources.'.:format', $resource, array('GET'), $action = 'list');
-    $this->connect('/'.$resources.'.:format', $resource, array('POST'), $action = 'create');
-    $this->connect('/'.$resources.'/:id.:format', $resource, array('GET'), $action = 'show');
-    $this->connect('/'.$resources.'/:id.:format', $resource, array('PUT'), $action = 'update');
-    $this->connect('/'.$resources.'/:id.:format', $resource, array('DELETE'), $action = 'destroy');
+    $this->connect($pathPrefix.'/'.$resources.'.:format', $resource, array('GET'), $action = 'list');
+    $this->connect($pathPrefix.'/'.$resources.'.:format', $resource, array('POST'), $action = 'create');
+    $this->connect($pathPrefix.'/'.$resources.'/:id.:format', $resource, array('GET'), $action = 'show');
+    $this->connect($pathPrefix.'/'.$resources.'/:id.:format', $resource, array('PUT'), $action = 'update');
+    $this->connect($pathPrefix.'/'.$resources.'/:id.:format', $resource, array('DELETE'), $action = 'destroy');
   }
   
   /**
@@ -235,8 +273,8 @@ class Sonata_RouteMap
    */
   public function nestedResources($resources, $parentResources, array $singulars = array())
   {
-    $resource = (!isset($singulars[0]) || is_null($singulars[0]) || !is_string($singular[0])) ? substr($resources, 0, strlen($resources)-1) : $singulars[0];
-    $parentResource = (!isset($singulars[1]) || is_null($singulars[1]) || !is_string($singular[1])) ? substr($parentResources, 0, strlen($parentResources)-1) : $singulars[1];
+    $resource = (!isset($singulars[0]) || is_null($singulars[0]) || !is_string($singulars[0])) ? substr($resources, 0, strlen($resources)-1) : $singulars[0];
+    $parentResource = (!isset($singulars[1]) || is_null($singulars[1]) || !is_string($singulars[1])) ? substr($parentResources, 0, strlen($parentResources)-1) : $singulars[1];
     
     $this->connect('/'.$parentResources.'/:'.$parentResource.'_id/'.$resources.'.:format', $resource, array('GET'), $action = 'list');
     $this->connect('/'.$parentResources.'/:'.$parentResource.'_id/'.$resources.'.:format', $resource, array('POST'), $action = 'create');
